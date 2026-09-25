@@ -256,17 +256,88 @@ bottom-sheet::part(handle) {
 	background: var(--c-border);
 	width: 44px;
 }
+/* Bottom padding only: horizontal padding is on the slotted wrapper (see Sheet.svelte). */
 bottom-sheet::part(content) {
-	padding: 0 1rem calc(1rem + env(safe-area-inset-bottom));
+	padding: 0 0 calc(1rem + env(safe-area-inset-bottom));
 }
-bottom-sheet-dialog-manager dialog::backdrop {
-	background: rgb(0 0 0 / 0.28);
+/* iOS focuses the dialog on taps: never draw a full-screen focus ring for it. */
+bottom-sheet-dialog-manager dialog:focus-visible {
+	outline: none;
 }
 
-/* Keep map controls and attribution clear of the bottom search bar */
+/*
+ * iOS page-sheet presentation (state set by sheet-backdrop.ts on the page):
+ * - `data-sheet="open"`: a sheet is open, the page dims;
+ * - `data-sheet="raised"`: a sheet reached its top, the page recedes into a card: it
+ *   shrinks, trims the full-bleed margins into rounded corners and moves below the
+ *   status bar, over the black stage.
+ * Plain transitions between states (iOS sheet curve): nothing is restyled while dragging.
+ */
+@property --sheet-dim {
+	syntax: '<number>';
+	inherits: false;
+	initial-value: 0;
+}
+.sheet-backdrop {
+	--ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+	transform-origin: 50% var(--bleed);
+	clip-path: inset(0 round 0);
+	transition:
+		scale 0.5s var(--ease-sheet),
+		translate 0.5s var(--ease-sheet),
+		clip-path 0.5s var(--ease-sheet),
+		filter 0.35s ease-out;
+}
+.sheet-backdrop[data-sheet] {
+	filter: brightness(calc(1 - var(--sheet-dim)));
+}
+.sheet-backdrop[data-sheet='raised'] {
+	scale: 0.93;
+	translate: 0 calc(env(safe-area-inset-top) + 0.625rem);
+	clip-path: inset(var(--bleed) 0 round 1.5rem);
+	filter: brightness(calc(0.85 - var(--sheet-dim)));
+}
+/*
+ * Sheet dialogs open non-modally (see Sheet.svelte) and catch taps outside the
+ * sheet themselves: the library lets non-modal dialogs pass pointer events through.
+ * Dimming is drawn by the page (.sheet-backdrop), never by a fixed layer.
+ */
+bottom-sheet-dialog-manager dialog {
+	z-index: 50;
+	pointer-events: auto;
+}
+
+/*
+ * Home stage (see full-bleed.ts). The root never scrolls: it rests at `--bleed`,
+ * set on phones only, where Safari draws its translucent bars over the page.
+ * The bleed covers the browser bars above and below in every Safari tab layout.
+ */
+/* Registered so its computed value resolves to px (read by full-bleed.ts). */
+@property --bleed {
+	syntax: '<length>';
+	inherits: true;
+	initial-value: 0px;
+}
+:root:has(.stage) {
+	overflow: hidden;
+	overscroll-behavior: none;
+}
+@media (max-width: 767px) and (pointer: coarse) {
+	:root:has(.stage) {
+		--bleed: 8rem;
+	}
+}
+.stage {
+	position: absolute;
+	inset-inline: 0;
+	top: 0;
+	height: calc(100dvh + 2 * var(--bleed));
+}
+
+/* Keep map controls and attribution clear of the bottom search bar and of the bleed. */
 .maplibregl-ctrl-bottom-right,
 .maplibregl-ctrl-bottom-left {
-	margin-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+	margin-bottom: calc(5.25rem + env(safe-area-inset-bottom) + var(--bleed));
 }
 
 /* Info popup on map (no-data roads) */

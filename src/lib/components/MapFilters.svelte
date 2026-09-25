@@ -11,7 +11,8 @@
 </script>
 
 <div class="flex min-w-0 flex-col items-stretch gap-2 sm:items-end">
-	<fieldset class="glass p-1">
+	<!-- min-w-0: a fieldset is min-content wide by default, it would overflow instead of scrolling. -->
+	<fieldset class="glass min-w-0 p-1">
 		<legend class="sr-only">{prefs.m.map.filters}</legend>
 		<div class="flex gap-1">
 			{#each MODES as mode (mode)}
@@ -24,9 +25,9 @@
 	</fieldset>
 
 	{#if app.mapMode === 'day'}
-		<fieldset class="glass max-w-full p-1">
+		<fieldset class="glass min-w-0 max-w-full p-1">
 			<legend class="sr-only">{prefs.m.map.dayFilter}</legend>
-			<div class="flex gap-1 overflow-x-auto">
+			<div class="flex gap-1 overflow-x-auto overscroll-x-contain rounded-xl [scrollbar-width:none]">
 				{#each days as d, i (d)}
 					<label class="has-checked:bg-text has-checked:text-bg text-text hover:bg-surface-2 has-focus-visible:outline-accent min-h-9 shrink-0 cursor-pointer rounded-xl px-2.5 py-2 text-xs font-semibold has-focus-visible:outline-2">
 						<input type="radio" class="sr-only" name="{uid}-day" value={i} bind:group={app.dayOffset} />

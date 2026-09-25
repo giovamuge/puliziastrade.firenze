@@ -15,12 +15,16 @@
 	import { fly } from 'svelte/transition';
 	import { wideScreen } from '$lib/client/media';
 	import { scrollFade } from '$lib/client/scroll-fade';
+	import { sheetSource } from '$lib/client/sheet-backdrop';
 
 	/**
 	 * Adaptive panel for the street details.
 	 *
-	 * - Phones: modal bottom sheet (pure-web-bottom-sheet on a native <dialog>):
+	 * - Phones: bottom sheet (pure-web-bottom-sheet on a native <dialog>):
 	 *   CSS scroll-snap drag physics, dismiss by swiping down, tapping outside or Esc.
+	 *   The dialog is opened non-modally with modal behaviour rebuilt here and in
+	 *   sheet-backdrop.ts (page inert and dimmed, full-screen tap catcher, Esc):
+	 *   with a modal dialog Safari 26 stops drawing the page under its status bar.
 	 * - Tablets and desktop: non-modal sidebar on the left, the map stays usable.
 	 *   "sub" panels (reminder, report) slide over the main one, like a navigation push.
 	 *
@@ -64,7 +68,7 @@
 
 	$effect(() => {
 		if (!ready || !dialog) return;
-		if (open && !wide && !dialog.open) dialog.showModal();
+		if (open && !wide && !dialog.open) dialog.show();
 		else if ((!open || wide) && dialog.open) dialog.close();
 	});
 
@@ -73,17 +77,42 @@
 		if (open && !wide) onclose();
 	}
 
+	/** The dialog covers the screen: a tap on it, outside the sheet, dismisses. */
+	function onDialogClick(event: MouseEvent): void {
+		if (event.target === dialog) dialog.close();
+	}
+
+	function onDialogKeydown(event: KeyboardEvent): void {
+		if (event.key !== 'Escape' || !dialog?.open) return;
+		event.stopPropagation();
+		dialog.close();
+	}
+
+	/** Scroll fraction (0–1 of the sheet max height) of the resting detent. */
+	const restFraction = $derived(Math.min(1, (Number.parseFloat(snaps[initial] ?? '100') || 100) / 100));
+
 	/**
-	 * Wires scroll fade and a swipe-to-dismiss safety net on the sheet: the
-	 * library detects the collapsed state with an IntersectionObserver that may
-	 * not fire in some environments, leaving an invisible modal that blocks the
-	 * page. The sheet is the snap scroller: once raised, settling back at the
+	 * Wires scroll fade, the page-sheet backdrop and a swipe-to-dismiss safety net on the sheet.
+	 * Backdrop: raising the sheet from its resting detent to the top makes the page recede (0 → 1).
+	 * Safety net: the library detects the collapsed state with an IntersectionObserver
+	 * that may not fire in some environments, leaving an invisible modal that blocks
+	 * the page. The sheet is the snap scroller: once raised, settling back at the
 	 * bottom (scrollTop ≈ 0) means the user swiped it away.
 	 */
 	function sheetBehaviour(sheet: HTMLElement): () => void {
 		let raised = false;
 		let timer: ReturnType<typeof setTimeout> | undefined;
 		let disposeFade: (() => void) | undefined;
+		let frame = 0;
+		const backdrop = sheetSource();
+		const measure = () => {
+			frame = 0;
+			const range = sheet.scrollHeight - sheet.clientHeight;
+			if (!dialog?.open || range <= 0) return backdrop.lift(0);
+			const raised = sheet.scrollTop / range;
+			const rest = restFraction;
+			backdrop.lift(Math.min(1, Math.max(0, rest >= 1 ? raised : (raised - rest) / (1 - rest))));
+		};
 		void register().then(() => {
 			// The scrolling element lives in the component's (open) shadow root.
 			const content = sheet.shadowRoot?.querySelector<HTMLElement>('.sheet-content');
@@ -93,18 +122,24 @@
 			if (raised && dialog?.open && sheet.scrollTop <= 1) dialog.close();
 		};
 		const onScroll = () => {
+			frame ||= requestAnimationFrame(measure);
 			if (sheet.scrollTop > 40) raised = true;
 			clearTimeout(timer);
 			timer = setTimeout(settle, 180);
 		};
-		const onOpen = () => (raised = false);
+		const onToggle = () => {
+			raised = false;
+			backdrop.open(dialog?.open ?? false);
+		};
 		sheet.addEventListener('scroll', onScroll, { passive: true });
-		dialog?.addEventListener('toggle', onOpen);
+		dialog?.addEventListener('toggle', onToggle);
 		return () => {
+			cancelAnimationFrame(frame);
+			backdrop.dispose();
 			disposeFade?.();
 			clearTimeout(timer);
 			sheet.removeEventListener('scroll', onScroll);
-			dialog?.removeEventListener('toggle', onOpen);
+			dialog?.removeEventListener('toggle', onToggle);
 		};
 	}
 
@@ -154,13 +189,21 @@
 	{/if}
 {:else}
 	<bottom-sheet-dialog-manager>
-		<dialog bind:this={dialog} aria-labelledby={labelledby} onclose={onDialogClose}>
-			<bottom-sheet {@attach sheetBehaviour} class={variant === 'sub' ? 'sheet-sub' : ''} swipe-to-dismiss nested-scroll tabindex="-1">
+		<!--
+			No tabindex on <bottom-sheet>: on iOS a tap focuses the nearest focusable
+			ancestor, and focusing the scroll container retargets the synthetic click
+			to it (or to the <dialog>, where a tap counts as outside the sheet):
+			buttons never fired and the sheet closed. Opening focuses the heading instead.
+		-->
+		<dialog bind:this={dialog} aria-labelledby={labelledby} aria-modal="true" onclose={onDialogClose} onclick={onDialogClick} onkeydown={onDialogKeydown}>
+			<bottom-sheet {@attach sheetBehaviour} class={variant === 'sub' ? 'sheet-sub' : ''} swipe-to-dismiss nested-scroll>
 				{#each snaps as snap, i (snap)}
 					<div slot="snap" style="--snap: {snap}" class={[i === initial && 'initial', i === 0 && snap === '100%' && 'top']}></div>
 				{/each}
 				<div slot="header" class="px-4 pb-2">{@render header()}</div>
-				{#if open}{@render children()}{/if}
+				<!-- Horizontal padding lives here, not on ::part(content): on iOS the library sizes a
+				     pseudo-element from the content padding, which would make it scroll sideways. -->
+				<div class="px-4">{#if open}{@render children()}{/if}</div>
 			</bottom-sheet>
 		</dialog>
 	</bottom-sheet-dialog-manager>

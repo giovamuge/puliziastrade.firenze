@@ -13,6 +13,8 @@
 	import { NO_BAND, UrgencyCalculator } from '$lib/domain/urgency';
 	import { foldText } from '$lib/domain/street-name';
 	import { wideScreen } from '$lib/client/media';
+	import { bleed } from '$lib/client/full-bleed';
+	import MapLoader from './MapLoader.svelte';
 
 	const app = useAppState();
 	const prefs = usePreferences();
@@ -36,6 +38,8 @@
 	let styleTheme: Theme | undefined;
 
 	let status = $state<'loading' | 'ready' | 'error'>('loading');
+	/** The first full load (basemap and street layers) completed: later style swaps keep the map on screen. */
+	let loaded = $state(false);
 
 	const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -146,6 +150,7 @@
 		});
 
 		status = 'ready';
+		loaded = true;
 		refreshColors();
 		refreshSelection(false);
 		refreshPosition(false);
@@ -174,10 +179,14 @@
 		map.setPaintProperty('arcs-line', 'line-width', lineWidth(app.mapMode, styleTheme!));
 	}
 
-	/** Leaves room for the floating controls and the street panel: sidebar (wide) or bottom sheet (~62%). */
+	/**
+	 * Leaves room for the floating controls and the street panel: sidebar (wide) or bottom sheet (~62%).
+	 * On phones the map also extends under the browser bars (full bleed), outside the visible area.
+	 */
 	function padding(): PaddingOptions {
 		const wide = wideScreen.current;
-		const base = { top: wide ? 80 : 120, right: 50, bottom: 110, left: 50 };
+		const edge = bleed();
+		const base = { top: (wide ? 80 : 120) + edge, right: 50, bottom: 110 + edge, left: 50 };
 		if (!app.sheetOpen) return base;
 		return wide ? { ...base, left: 470 } : { ...base, bottom: Math.round(window.innerHeight * 0.64) };
 	}
@@ -402,8 +411,8 @@
 
 <div class="absolute inset-0">
 	<div bind:this={container} class="bg-surface-2 size-full" role="region" aria-label={prefs.m.map.region}></div>
-	{#if status === 'loading' && !map}
-		<div class="text-muted pointer-events-none absolute inset-0 grid place-items-center text-sm" role="status">{prefs.m.map.loading}</div>
+	{#if status === 'loading' && !loaded}
+		<MapLoader label={prefs.m.map.loading} />
 	{:else if status === 'error'}
 		<div class="absolute inset-0 grid place-items-center p-6 text-center text-sm" role="alert">{prefs.m.map.error}</div>
 	{/if}

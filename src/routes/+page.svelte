@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { provideAppState } from '$lib/client/app-state.svelte';
+	import { fullBleed } from '$lib/client/full-bleed';
+	import { sheetBackdrop } from '$lib/client/sheet-backdrop';
 	import { usePreferences } from '$lib/client/preferences.svelte';
 	import BrandMark from '$lib/components/BrandMark.svelte';
 	import CityMap from '$lib/components/CityMap.svelte';
@@ -56,25 +58,37 @@
 	<link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin="anonymous" />
 </svelte:head>
 
-<main id="main" class="fixed inset-0 overflow-hidden">
-	<h1 class="sr-only">{prefs.m.meta.title}</h1>
-	<CityMap />
+<!--
+	Full bleed (see full-bleed.ts): on phones the stage extends past the visible
+	viewport so the map shows under Safari's status bar and toolbar; the controls
+	live in the `viewport` layer, which matches the visible area and keeps clear of
+	the safe areas. The black stage shows around the page when it recedes behind a
+	raised sheet. No fixed backgrounds touch the edges: Safari would tint its bars.
+-->
+<div class="stage bg-black" {@attach fullBleed}>
+	<main id="main" class="sheet-backdrop absolute inset-0 overflow-hidden" {@attach sheetBackdrop}>
+		<h1 class="sr-only">{prefs.m.meta.title}</h1>
+		<CityMap />
 
-	<!-- Top: brand (left) · filters, legend, settings (right) -->
-	<div class="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-		<a href="/" class="glass pointer-events-auto grid size-11 shrink-0 place-items-center max-sm:hidden" aria-label={prefs.m.common.home} title="{prefs.m.common.appName} · {prefs.m.common.city}">
-			<BrandMark size={28} />
-		</a>
-		<div class="pointer-events-auto flex min-w-0 flex-1 items-start justify-end gap-2">
-			<div class="min-w-0 max-sm:flex-1"><MapFilters /></div>
-			<MapLegend />
-			<SettingsMenu />
+		<div class="pointer-events-none absolute inset-x-0 top-(--bleed) z-20 h-dvh">
+			<!-- Top: brand (left) · filters, legend, settings (right) -->
+			<div class="absolute inset-x-0 top-0 flex items-start gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+				<a href="/" class="glass pointer-events-auto grid size-11 shrink-0 place-items-center max-sm:hidden" aria-label={prefs.m.common.home} title="{prefs.m.common.appName} · {prefs.m.common.city}">
+					<BrandMark size={28} />
+				</a>
+				<div class="pointer-events-auto flex min-w-0 flex-1 items-start justify-end gap-2">
+					<div class="min-w-0 max-sm:flex-1"><MapFilters /></div>
+					<MapLegend />
+					<SettingsMenu />
+				</div>
+			</div>
+
+			<!-- Bottom centre: search + my location -->
+			<BottomBar />
 		</div>
-	</div>
-
-	<!-- Bottom centre: search + my location -->
-	<BottomBar />
-	<StreetSheet />
-</main>
+	</main>
+</div>
+<!-- Outside the page: sheets are neither scaled nor dimmed with it, and stay reachable while it is inert. -->
+<StreetSheet />
 
 <div class="sr-only" role="status" aria-live="polite">{app.announcement}</div>

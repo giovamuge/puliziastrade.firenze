@@ -9,6 +9,11 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+		<!-- Installed app: full screen, the map runs under a translucent status bar. -->
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content="Strade Pulite" />
 		<!-- Applies stored theme/language before first paint (hash allowed in CSP by svelte.config.js). -->
 		<script id="prefs-init">try{var d=document.documentElement,t=localStorage.getItem('theme'),l=localStorage.getItem('locale');if(t==='light'||t==='dark')d.dataset.theme=t;if(l)d.lang=l}catch(e){}</script>
 		%sveltekit.head%

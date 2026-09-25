@@ -12,12 +12,13 @@
 </script>
 
 <!--
-	Centred on the map. On tablet/desktop the street sidebar takes the full height
-	on the left, so the bar moves into the free area to its right.
+	Centred on the map, at the bottom of the visible area (the page's viewport layer).
+	On tablet/desktop the street sidebar takes the full height on the left, so the
+	bar moves into the free area to its right.
 -->
 <div
 	class={[
-		'pointer-events-none fixed inset-x-0 bottom-0 z-40 flex flex-col items-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]',
+		'pointer-events-none absolute inset-x-0 bottom-0 z-40 flex flex-col items-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]',
 		'transition-[left] duration-200 motion-reduce:transition-none',
 		app.sheetOpen && 'md:left-[calc(var(--sidebar-w)+0.75rem)]'
 	]}
