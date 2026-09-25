@@ -1,0 +1,38 @@
+{
+  "name": "puliziastrade-firenze",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Scopri quando passa la pulizia strade a Firenze: mappa, ricerca via, calendario e verifiche.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.39.0",
+    "maplibre-gl": "^6.11.1",
+    "minisearch": "^7.2.0",
+    "pure-web-bottom-sheet": "^1.0.0",
+    "valibot": "^1.5.0"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-vercel": "^6.3.4",
+    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.6.2",
+    "svelte": "^5.57.1",
+    "svelte-check": "^4.7.6",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}

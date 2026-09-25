@@ -1,0 +1,280 @@
+@import 'tailwindcss';
+
+/*
+ * Palette ispirata a Firenze:
+ *   giglio   – il rosso del giglio fiorentino (azioni primarie, urgenza)
+ *   pietra   – la pietra serena di Brunelleschi (testi secondari, bordi)
+ *   cotto    – i tetti in cotto (oggi)
+ *   ocra     – gli intonaci dei palazzi (domani)
+ *   viola    – il viola fiorentino (selezione, focus)
+ *   avorio   – il marmo di Carrara/Duomo (sfondo)
+ * Tutte le coppie testo/sfondo rispettano WCAG 2.2 AA (≥ 4.5:1).
+ */
+@theme {
+	--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+
+	--color-bg: var(--c-bg);
+	--color-surface: var(--c-surface);
+	--color-surface-2: var(--c-surface-2);
+	--color-border: var(--c-border);
+	--color-text: var(--c-text);
+	--color-muted: var(--c-muted);
+	--color-primary: var(--c-primary);
+	--color-primary-hover: var(--c-primary-hover);
+	--color-on-primary: var(--c-on-primary);
+	--color-primary-text: var(--c-primary-text);
+	--color-accent: var(--c-accent);
+	--color-ok: var(--c-ok);
+
+	--color-tone-now: var(--c-tone-now);
+	--color-tone-now-fg: var(--c-tone-now-fg);
+	--color-tone-today: var(--c-tone-today);
+	--color-tone-today-fg: var(--c-tone-today-fg);
+	--color-tone-tomorrow: var(--c-tone-tomorrow);
+	--color-tone-tomorrow-fg: var(--c-tone-tomorrow-fg);
+	--color-tone-week: var(--c-tone-week);
+	--color-tone-week-fg: var(--c-tone-week-fg);
+	--color-tone-later: var(--c-tone-later);
+	--color-tone-later-fg: var(--c-tone-later-fg);
+}
+
+:root {
+	/* Desktop street sidebar width, shared with the bottom bar that sits beside it. */
+	--sidebar-w: min(27rem, calc(100vw - 1.5rem));
+	--c-bg: #faf7f2;
+	--c-surface: #ffffff;
+	--c-surface-2: #f3eee6;
+	--c-border: #e3dbcf;
+	--c-text: #1f2326;
+	--c-muted: #535f67;
+	--c-primary: #a6192e;
+	--c-primary-hover: #8a1326;
+	--c-on-primary: #ffffff;
+	--c-primary-text: #a6192e;
+	--c-accent: #5b2a86;
+	--c-ok: #2e6b45;
+
+	--c-tone-now: #a6192e;
+	--c-tone-now-fg: #ffffff;
+	--c-tone-today: #b23f17;
+	--c-tone-today-fg: #ffffff;
+	--c-tone-tomorrow: #f6e3b4;
+	--c-tone-tomorrow-fg: #5c3c00;
+	--c-tone-week: #ebe4d8;
+	--c-tone-week-fg: #3f4a51;
+	--c-tone-later: #f1efec;
+	--c-tone-later-fg: #535f67;
+
+	color-scheme: light;
+}
+
+/* Dark tokens: follow the system unless the user forced light; or forced dark. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--c-bg: #121517;
+		--c-surface: #1b2024;
+		--c-surface-2: #242a2f;
+		--c-border: #353d44;
+		--c-text: #ece7df;
+		--c-muted: #a9b3b9;
+		--c-primary: #c22a40;
+		--c-primary-hover: #d63a50;
+		--c-on-primary: #ffffff;
+		--c-primary-text: #ff8a99;
+		--c-accent: #c3a0ec;
+		--c-ok: #7fd19b;
+
+		--c-tone-now: #c22a40;
+		--c-tone-now-fg: #ffffff;
+		--c-tone-today: #b8481f;
+		--c-tone-today-fg: #ffffff;
+		--c-tone-tomorrow: #4a3a12;
+		--c-tone-tomorrow-fg: #f8dc95;
+		--c-tone-week: #2c343a;
+		--c-tone-week-fg: #d5dde2;
+		--c-tone-later: #22282c;
+		--c-tone-later-fg: #a9b3b9;
+
+		color-scheme: dark;
+	
+	}
+}
+:root[data-theme='dark'] {
+		--c-bg: #121517;
+	--c-surface: #1b2024;
+	--c-surface-2: #242a2f;
+	--c-border: #353d44;
+	--c-text: #ece7df;
+	--c-muted: #a9b3b9;
+	--c-primary: #c22a40;
+	--c-primary-hover: #d63a50;
+	--c-on-primary: #ffffff;
+	--c-primary-text: #ff8a99;
+	--c-accent: #c3a0ec;
+	--c-ok: #7fd19b;
+
+	--c-tone-now: #c22a40;
+	--c-tone-now-fg: #ffffff;
+	--c-tone-today: #b8481f;
+	--c-tone-today-fg: #ffffff;
+	--c-tone-tomorrow: #4a3a12;
+	--c-tone-tomorrow-fg: #f8dc95;
+	--c-tone-week: #2c343a;
+	--c-tone-week-fg: #d5dde2;
+	--c-tone-later: #22282c;
+	--c-tone-later-fg: #a9b3b9;
+
+	color-scheme: dark;
+	
+}
+
+@layer base {
+	html {
+		-webkit-text-size-adjust: 100%;
+		text-rendering: optimizeLegibility;
+	}
+	body {
+		@apply bg-bg text-text font-sans antialiased;
+	}
+	h1,
+	h2,
+	h3 {
+		@apply font-serif;
+		text-wrap: balance;
+	}
+	:focus-visible {
+		outline: 3px solid var(--c-accent);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+}
+
+@utility card {
+	@apply bg-surface border-border rounded-2xl border;
+}
+@utility btn {
+	@apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-primary {
+	@apply btn bg-primary text-on-primary hover:bg-primary-hover;
+}
+@utility btn-secondary {
+	@apply btn bg-surface border-border text-text hover:bg-surface-2 border;
+}
+@utility btn-ghost {
+	@apply btn text-text hover:bg-surface-2;
+}
+@utility glass {
+	@apply bg-surface/95 border-border rounded-2xl border shadow-lg backdrop-blur;
+}
+@utility chip {
+	@apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap;
+}
+
+/* MapLibre: keep controls readable in both themes */
+.maplibregl-ctrl-group {
+	background: var(--c-surface) !important;
+	border: 1px solid var(--c-border);
+}
+.maplibregl-ctrl-group button + button {
+	border-top-color: var(--c-border) !important;
+}
+:root[data-resolved-theme='dark'] .maplibregl-ctrl-icon {
+	filter: invert(1);
+}
+.maplibregl-ctrl-attrib {
+	background: color-mix(in oklab, var(--c-surface) 85%, transparent) !important;
+	color: var(--c-muted);
+}
+.maplibregl-ctrl-attrib a {
+	color: var(--c-text) !important;
+}
+.maplibregl-popup-content {
+	background: var(--c-surface) !important;
+	color: var(--c-text);
+	border-radius: 10px !important;
+	font: 600 13px/1.3 var(--font-sans);
+	padding: 6px 10px !important;
+}
+.maplibregl-popup-tip {
+	display: none;
+}
+
+/* Native popovers (legend, settings, calendar menu): in the base layer so utilities can override. */
+@layer base {
+	[popover] {
+		margin: 0;
+		color: var(--c-text);
+	}
+	[popover]::backdrop {
+		background: rgb(0 0 0 / 0.25);
+	}
+}
+
+/* Scroll fade (see scroll-fade.ts): edges fade only where content is hidden. */
+.scroll-fade,
+bottom-sheet::part(content) {
+	mask-image: linear-gradient(
+		to bottom,
+		transparent 0,
+		#000 var(--fade-top, 0px),
+		#000 calc(100% - var(--fade-bottom, 0px)),
+		transparent 100%
+	);
+}
+
+/* pure-web-bottom-sheet theming */
+bottom-sheet {
+	--sheet-background: var(--c-surface);
+	--sheet-border-radius: 22px;
+	--sheet-max-height: calc(100dvh - 4.5rem);
+	color: var(--c-text);
+	/* Centred card on wide screens, full width on phones */
+	max-width: 40rem;
+	margin-inline: auto;
+}
+bottom-sheet.sheet-sub {
+	--sheet-max-height: calc(100dvh - 2.5rem);
+}
+bottom-sheet::part(sheet) {
+	box-shadow: 0 -8px 32px rgb(0 0 0 / 0.18);
+	border: 1px solid var(--c-border);
+	border-bottom: 0;
+}
+bottom-sheet::part(handle) {
+	background: var(--c-border);
+	width: 44px;
+}
+bottom-sheet::part(content) {
+	padding: 0 1rem calc(1rem + env(safe-area-inset-bottom));
+}
+bottom-sheet-dialog-manager dialog::backdrop {
+	background: rgb(0 0 0 / 0.28);
+}
+
+/* Keep map controls and attribution clear of the bottom search bar */
+.maplibregl-ctrl-bottom-right,
+.maplibregl-ctrl-bottom-left {
+	margin-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* Info popup on map (no-data roads) */
+.map-info .maplibregl-popup-content {
+	padding: 12px 28px 12px 12px !important;
+}
+.map-info .maplibregl-popup-close-button {
+	color: var(--c-muted);
+	font-size: 18px;
+	padding: 2px 8px;
+}
