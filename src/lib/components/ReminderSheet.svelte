@@ -1,18 +1,20 @@
 <script lang="ts">
-	import type { AlarmOption, StreetDetailDto } from '$lib/api/contracts';
+	import type { AlarmOption, CalendarMode, StreetDetailDto } from '$lib/api/contracts';
 	import { api } from '$lib/client/api';
 	import { useAppState } from '$lib/client/app-state.svelte';
 	import { usePreferences } from '$lib/client/preferences.svelte';
 	import { formatMinutes, parseIsoDate, toIsoDate } from '$lib/domain/civil-date';
+	import { icsLocalStamp, recurrencesFor } from '$lib/domain/recurrence';
+	import { romeLocalToEpochMs, TIME_ZONE } from '$lib/domain/rome-clock';
 	import { alarmWallTime } from '$lib/domain/reminder';
 	import { useStreetModel } from '$lib/client/street-model.svelte';
 	import Icon from './Icon.svelte';
 	import Sheet from './Sheet.svelte';
 
 	/**
-	 * Reminder sheet: choose what (the user's stretch or the whole street) and
-	 * when to be alerted, see the next alert, then pick the calendar app.
-	 * The feed is a live subscription that updates itself.
+	 * Reminder sheet: choose where (the user's stretch or the whole street),
+	 * how (recurring events, the next sweep only, or a live feed that updates
+	 * itself) and when to be alerted, then pick the calendar app.
 	 */
 	let { street }: { street: StreetDetailDto } = $props();
 	const app = useAppState();
@@ -25,6 +27,7 @@
 
 	let alarm = $state<AlarmOption>('auto');
 	let onlyGroup = $state(true);
+	let mode = $state<CalendarMode>('repeat');
 	const scopedToGroup = $derived(group >= 0 && street.groups.length > 1 && onlyGroup);
 	const segment = $derived(scopedToGroup ? street.segments.find((s) => s.group === group)?.code ?? null : null);
 
@@ -36,21 +39,29 @@
 		{ value: 'none', label: () => m.none }
 	];
 
-	const path = $derived(api.calendarPath(street.slug, { segment, alarm, lang: prefs.locale }));
-	const httpsUrl = $derived(typeof window === 'undefined' ? path : new URL(path, window.location.origin).href);
-	const webcalUrl = $derived(httpsUrl.replace(/^https?:/, 'webcal:'));
-	const googleUrl = $derived(`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl)}`);
-	const outlookUrl = $derived(
-		`https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(httpsUrl)}&name=${encodeURIComponent(street.name)}`
-	);
+	const MODES: { value: CalendarMode; label: () => string; hint: () => string }[] = [
+		{ value: 'repeat', label: () => m.modeRepeat, hint: () => m.modeRepeatHint },
+		{ value: 'next', label: () => m.modeNext, hint: () => m.modeNextHint },
+		{ value: 'feed', label: () => m.modeFeed, hint: () => m.modeFeedHint }
+	];
 
-	/** First future reminder for the chosen scope and timing. */
-	const nextAlert = $derived.by(() => {
+	const origin = () => (typeof window === 'undefined' ? '' : window.location.origin);
+	const path = $derived(api.calendarPath(street.slug, { segment, alarm, lang: prefs.locale, mode }));
+	const httpsUrl = $derived(new URL(path, origin() || 'http://localhost').href);
+	const webcalUrl = $derived(httpsUrl.replace(/^https?:/, 'webcal:'));
+
+	/** Sweeps in the chosen scope that have not ended yet. */
+	const pending = $derived.by(() => {
 		const { day: today, minute } = app.clock.now;
 		const todayIso = toIsoDate(today);
-		for (const o of street.upcoming) {
-			if (scopedToGroup && !o.groups.includes(group)) continue;
-			if (o.date === todayIso && o.end <= minute) continue;
+		return street.upcoming.filter((o) => (!scopedToGroup || o.groups.includes(group)) && !(o.date === todayIso && o.end <= minute));
+	});
+	const next = $derived(pending[0] ?? null);
+
+	/** First future reminder: of the next sweep only, or of the whole feed. */
+	const nextAlert = $derived.by(() => {
+		const { day: today, minute } = app.clock.now;
+		for (const o of mode === 'next' ? pending.slice(0, 1) : pending) {
 			const wall = alarmWallTime(alarm, parseIsoDate(o.date), o.from);
 			if (!wall) return null;
 			if (wall.day > today || (wall.day === today && wall.minute > minute)) {
@@ -59,6 +70,64 @@
 		}
 		return null;
 	});
+
+	const rules = $derived(scopedToGroup ? street.groups[group]!.rules : street.rules);
+	/** One recurring event per rule part, as in the server ICS (`modo=repeat`). */
+	const recurrences = $derived(recurrencesFor(rules, app.clock.now.day, app.clock.now.minute));
+
+	const pageUrl = $derived.by(() => {
+		const page = new URL('/', origin() || 'http://localhost');
+		page.searchParams.set('strada', street.slug);
+		if (segment) page.searchParams.set('tratto', segment);
+		return page.href;
+	});
+	const summary = $derived(prefs.m.ics.summary(scopedToGroup ? prefs.m.ics.segmentTitle(street.name, groupLabel(group)) : street.name));
+	const location = $derived(prefs.m.ics.location(street.name));
+
+	/** The next sweep, mirroring the server ICS event (`modo=next`). */
+	const event = $derived.by(() => {
+		if (!next) return null;
+		const ics = prefs.m.ics;
+		const inGroup = scopedToGroup ? new Set(street.segments.filter((s) => s.group === group).map((s) => s.code)) : null;
+		const swept = inGroup ? next.segments.filter((c) => inGroup.has(c)).length : next.segments.length;
+		const total = inGroup?.size ?? street.segments.length;
+		const day = parseIsoDate(next.date);
+		return {
+			details: [ics.time(prefs.f.timeWindow(next.from, next.to), swept === total ? ics.scopeAll : ics.scopeSome(swept, total)), ics.noParking, ics.details(pageUrl)].join('\n'),
+			start: icsLocalStamp(day, next.from),
+			end: icsLocalStamp(day, next.end),
+			when: `${prefs.f.longDate(day)} · ${prefs.f.timeWindow(next.from, next.to)}`
+		};
+	});
+
+	/** Google takes one event per link: recurring only when the scope has a single rule. */
+	const googleUrl = $derived.by(() => {
+		if (mode === 'feed') return `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl)}`;
+		const base = { action: 'TEMPLATE', text: summary, location, ctz: TIME_ZONE };
+		if (mode === 'next') {
+			if (!event) return null;
+			return `https://calendar.google.com/calendar/render?${new URLSearchParams({ ...base, dates: `${event.start}/${event.end}`, details: event.details })}`;
+		}
+		const r = recurrences.length === 1 ? recurrences[0]! : null;
+		if (!r) return null;
+		const details = [prefs.f.rule(r.rule), prefs.m.ics.noParking, prefs.m.ics.details(pageUrl)].join('\n');
+		const dates = `${icsLocalStamp(r.day, r.from)}/${icsLocalStamp(r.day, r.end)}`;
+		return `https://calendar.google.com/calendar/render?${new URLSearchParams({ ...base, dates, details, recur: `RRULE:${r.rrule}` })}`;
+	});
+	/** Outlook's compose link has no recurrence: only the next sweep or the feed. */
+	const outlookUrl = $derived.by(() => {
+		if (mode === 'feed') return `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(httpsUrl)}&name=${encodeURIComponent(street.name)}`;
+		if (mode === 'repeat' || !event || !next) return null;
+		const day = parseIsoDate(next.date);
+		const iso = (minute: number) => new Date(romeLocalToEpochMs(day, minute)).toISOString();
+		const q = new URLSearchParams({ path: '/calendar/action/compose', rru: 'addevent', subject: summary, startdt: iso(next.from), enddt: iso(next.end), body: event.details, location });
+		return `https://outlook.live.com/calendar/0/deeplink/compose?${q}`;
+	});
+	/** Apple opens a one-off .ics as "add event(s)"; a feed needs webcal to subscribe. */
+	const appleUrl = $derived(mode === 'feed' ? webcalUrl : path);
+	const ready = $derived(mode === 'feed' || (mode === 'next' ? next !== null : recurrences.length > 0));
+	/** Why an app is missing in repeat mode, if it is. */
+	const repeatNotes = $derived(mode !== 'repeat' ? [] : [...(googleUrl ? [] : [m.repeatGoogleMany]), m.repeatOutlook]);
 
 	let copied = $state(false);
 	async function copy(): Promise<void> {
@@ -98,10 +167,22 @@
 		{/if}
 
 		<fieldset>
+			<legend class="mb-2 text-sm font-semibold">{m.modeTitle}</legend>
+			<div class="bg-surface-2 divide-border divide-y overflow-hidden rounded-xl">
+				{#each MODES as option (option.value)}
+					<label class="has-checked:bg-primary/10 has-focus-visible:outline-accent flex cursor-pointer items-start gap-3 p-3 -outline-offset-2 has-focus-visible:outline-2">
+						<input type="radio" class="accent-primary mt-0.5 size-5 shrink-0" name="{uid}-mode" value={option.value} bind:group={mode} aria-describedby="{uid}-mode-{option.value}" />
+						<span class="text-sm"><span class="block font-semibold">{option.label()}</span><span id="{uid}-mode-{option.value}" class="text-muted block text-xs">{option.hint()}</span></span>
+					</label>
+				{/each}
+			</div>
+		</fieldset>
+
+		<fieldset>
 			<legend class="mb-2 text-sm font-semibold">{m.when}</legend>
 			<div class="flex flex-wrap gap-1.5">
 				{#each OPTIONS as option (option.value)}
-					<label class="has-checked:bg-text has-checked:text-bg has-checked:border-text border-border hover:bg-surface-2 has-focus-visible:outline-accent cursor-pointer rounded-full border px-3 py-2 text-sm has-focus-visible:outline-2">
+					<label class="has-checked:bg-primary has-checked:text-on-primary has-checked:border-primary border-border hover:bg-surface-2 has-focus-visible:outline-accent cursor-pointer rounded-full border px-3 py-2 text-sm has-checked:font-semibold has-focus-visible:outline-2">
 						<input type="radio" class="sr-only" name="{uid}-alarm" value={option.value} bind:group={alarm} />
 						{option.label()}{#if option.hint}<span class="sr-only">: {option.hint()}</span>{/if}
 					</label>
@@ -110,41 +191,45 @@
 			{#if alarm === 'auto'}<p class="text-muted mt-2 text-xs">{m.autoHint}</p>{/if}
 		</fieldset>
 
-		{#if nextAlert}
-			<p class="bg-surface-2 flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm" aria-live="polite">
-				<Icon name="bell" size={16} class="text-primary-text shrink-0" />{m.nextAlert(nextAlert)}
-			</p>
+		{#if mode !== 'feed' || nextAlert}
+			<div class="bg-surface-2 space-y-1.5 rounded-xl px-3 py-2.5 text-sm" aria-live="polite">
+				{#if mode === 'next'}
+					<p class="flex items-center gap-2"><Icon name="calendar" size={16} class="text-primary-text shrink-0" />{event ? m.nextEvent(event.when) : m.noUpcoming}</p>
+				{:else if mode === 'repeat'}
+					{#each rules as rule, i (i)}
+						<p class="flex items-center gap-2"><Icon name="calendar" size={16} class="text-primary-text shrink-0" />{m.repeats(prefs.f.rule(rule))}</p>
+					{:else}
+						<p>{m.noUpcoming}</p>
+					{/each}
+				{/if}
+				{#if nextAlert}
+					<p class="flex items-center gap-2"><Icon name="bell" size={16} class="text-primary-text shrink-0" />{m.nextAlert(nextAlert)}</p>
+				{/if}
+			</div>
 		{/if}
 
-		<section aria-labelledby="{uid}-apps">
-			<h3 id="{uid}-apps" class="mb-2 font-sans text-sm font-semibold">{m.add}</h3>
-			<ul class="card divide-border divide-y overflow-hidden">
-				<li>
-					<a class="hover:bg-surface-2 flex items-center gap-3 p-3" href={webcalUrl}>
-						<Icon name="calendar" /><span class="flex-1"><span class="block font-semibold">{m.apple}</span><span class="text-muted block text-xs">{m.appleHint}</span></span><Icon name="chevron" class="text-muted" />
-					</a>
-				</li>
-				<li>
-					<a class="hover:bg-surface-2 flex items-center gap-3 p-3" href={googleUrl} target="_blank" rel="noopener noreferrer">
-						<Icon name="external" /><span class="flex-1 font-semibold">{m.google}</span><span class="sr-only">{prefs.m.common.newTab}</span><Icon name="chevron" class="text-muted" />
-					</a>
-				</li>
-				<li>
-					<a class="hover:bg-surface-2 flex items-center gap-3 p-3" href={outlookUrl} target="_blank" rel="noopener noreferrer">
-						<Icon name="external" /><span class="flex-1 font-semibold">{m.outlook}</span><span class="sr-only">{prefs.m.common.newTab}</span><Icon name="chevron" class="text-muted" />
-					</a>
-				</li>
-				<li>
-					<a class="hover:bg-surface-2 flex items-center gap-3 p-3" href={path} download>
-						<Icon name="download" /><span class="flex-1 font-semibold">{m.download}</span>
-					</a>
-				</li>
-				<li>
-					<button type="button" class="hover:bg-surface-2 flex w-full items-center gap-3 p-3 text-left" onclick={copy}>
-						<Icon name={copied ? 'check' : 'copy'} /><span class="flex-1 font-semibold">{copied ? prefs.m.common.copied : prefs.m.common.copyLink}</span>
+		{#if ready}
+			<section aria-labelledby="{uid}-apps">
+				<h3 id="{uid}-apps" class="mb-2 font-sans text-sm font-semibold">{m.add}</h3>
+				<div class="grid grid-cols-2 gap-2">
+					<a class="btn-primary px-3" href={appleUrl}><Icon name="calendar" />{m.apple}</a>
+					{#if googleUrl}
+						<a class="btn-primary px-3" href={googleUrl} target="_blank" rel="noopener noreferrer"><Icon name="calendar" />{m.google}<span class="sr-only">{prefs.m.common.newTab}</span></a>
+					{/if}
+					{#if outlookUrl}
+						<a class="btn-primary px-3" href={outlookUrl} target="_blank" rel="noopener noreferrer"><Icon name="calendar" />{m.outlook}<span class="sr-only">{prefs.m.common.newTab}</span></a>
+					{/if}
+					<a class="btn-primary px-3" href={path} download><Icon name="download" />{m.download}</a>
+				</div>
+				{#if mode === 'feed'}
+					<button type="button" class="btn-ghost mt-2 w-full" onclick={copy}>
+						<Icon name={copied ? 'check' : 'copy'} />{copied ? prefs.m.common.copied : prefs.m.common.copyLink}
 					</button>
-				</li>
-			</ul>
-		</section>
+				{:else}
+					{#each repeatNotes as note (note)}<p class="text-muted mt-2 text-xs">{note}</p>{/each}
+					{#if alarm !== 'none' && (googleUrl || outlookUrl)}<p class="text-muted mt-2 text-xs">{m.defaultAlarm}</p>{/if}
+				{/if}
+			</section>
+		{/if}
 	</div>
 </Sheet>

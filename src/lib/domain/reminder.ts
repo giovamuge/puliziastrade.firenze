@@ -33,3 +33,13 @@ export function alarmWallTime(option: AlarmOption, day: number, from: number): W
 			return from < EARLY_START ? evening : before(120);
 	}
 }
+
+/**
+ * Minutes between the reminder and a sweep starting at `from`, or null for no
+ * reminder. Recurring events need this relative form: an absolute trigger
+ * would only fire once.
+ */
+export function alarmMinutesBefore(option: AlarmOption, from: number): number | null {
+	const wall = alarmWallTime(option, 0, from);
+	return wall ? from - (wall.day * 1440 + wall.minute) : null;
+}

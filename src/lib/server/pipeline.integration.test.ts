@@ -75,7 +75,7 @@ describe.skipIf(!file)('pipeline on real data', () => {
 		expect(detail.groups).toHaveLength(2);
 		expect(detail.upcoming[0]!.groups).toEqual([0]);
 		const ics = buildStreetCalendar(city, {
-			street, arcs: new Set(services.topology.layout(street).groups[0]!.arcs), scopeLabel: 'tra A e B', scopeId: '264161',
+			street, arcs: new Set(services.topology.layout(street).groups[0]!.arcs), rules: [], scopeLabel: 'tra A e B', scopeId: '264161',
 			alarm: 'auto', now: { day: today, minute: 600 }, pageUrl: 'https://example.org', f: formatterFor('en')
 		});
 		expect(ics).toContain('SUMMARY:Street cleaning: Via del Saletto (tra A e B)');
