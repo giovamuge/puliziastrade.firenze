@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { useAppState } from '$lib/client/app-state.svelte';
-	import { keyboardDock } from '$lib/client/keyboard-dock';
 	import { usePreferences } from '$lib/client/preferences.svelte';
 	import Icon from './Icon.svelte';
 	import FirstVisitNotice from './FirstVisitNotice.svelte';
@@ -19,11 +18,10 @@
 -->
 <div
 	class={[
-		'pointer-events-none absolute inset-x-0 bottom-0 z-40 flex translate-y-[var(--kb-shift,0px)] flex-col items-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]',
+		'pointer-events-none absolute inset-x-0 bottom-0 z-40 flex flex-col items-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]',
 		'transition-[left] duration-200 motion-reduce:transition-none',
 		app.sheetOpen && 'md:left-[calc(var(--sidebar-w)+0.75rem)]'
 	]}
-	{@attach keyboardDock}
 >
 	<FirstVisitNotice />
 	{#if app.locateError}
@@ -34,7 +32,7 @@
 			</button>
 		</div>
 	{/if}
-	<div class="pointer-events-auto flex w-full max-w-xl items-center gap-2" data-dock-anchor>
+	<div class="pointer-events-auto flex w-full max-w-xl items-center gap-2">
 		<div class="min-w-0 flex-1"><SearchBox /></div>
 		<!-- The visible text is the accessible name; the title adds the full question for pointer users. -->
 		<button
