@@ -358,7 +358,7 @@ export const es = {
 			'Diseñado según WCAG 2.2 nivel AA: navegación completa con teclado, búsqueda conforme al patrón ARIA combobox, contrastes verificados en tema claro y oscuro, estados anunciados a lectores de pantalla, leyenda basada en color y grosor, y respeto de «reducir movimiento». Toda la información del mapa también está disponible como texto.',
 		creditsTitle: 'Créditos',
 		credits:
-			'Datos © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Mapa © colaboradores de OpenStreetMap, teselas OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, cliente Upstash Redis (MIT) y MapLibre GL JS (BSD-3-Clause). Logo: lirio simplificado a partir de «Firenze giglio gotico antico» de Horemhat (Wikimedia Commons, CC BY-SA 4.0); el logo se distribuye con la misma licencia.',
+			'Datos © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Mapa © colaboradores de OpenStreetMap, teselas OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, cliente Upstash Redis (MIT) y MapLibre GL JS (BSD-3-Clause). Logo: silueta del lirio, en un solo color, a partir de «Firenze giglio gotico antico» de Horemhat (Wikimedia Commons, CC BY-SA 4.0); el logo se distribuye con la misma licencia.',
 		notAvailable: 'n/d',
 		disclaimerTitle: 'Avisos',
 		disclaimer: [

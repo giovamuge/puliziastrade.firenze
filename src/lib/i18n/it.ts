@@ -360,7 +360,7 @@ export const it = {
 			'Progettato secondo le WCAG 2.2 livello AA: navigazione completa da tastiera, ricerca conforme al pattern ARIA combobox, contrasti verificati in tema chiaro e scuro, stati comunicati ai lettori di schermo, legenda basata su colore e spessore, rispetto della preferenza «riduci movimento». Ogni informazione della mappa è disponibile anche in forma testuale.',
 		creditsTitle: 'Crediti',
 		credits:
-			'Dati © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Mappa © contributori OpenStreetMap, tile OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash Redis client (MIT) e MapLibre GL JS (BSD-3-Clause). Logo: giglio semplificato da «Firenze giglio gotico antico» di Horemhat (Wikimedia Commons, CC BY-SA 4.0); il logo è distribuito con la stessa licenza.',
+			'Dati © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Mappa © contributori OpenStreetMap, tile OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash Redis client (MIT) e MapLibre GL JS (BSD-3-Clause). Logo: sagoma del giglio, a un solo colore, da «Firenze giglio gotico antico» di Horemhat (Wikimedia Commons, CC BY-SA 4.0); il logo è distribuito con la stessa licenza.',
 		notAvailable: 'n.d.',
 		disclaimerTitle: 'Avvertenze',
 		disclaimer: [

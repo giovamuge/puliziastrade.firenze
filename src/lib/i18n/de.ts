@@ -358,7 +358,7 @@ export const de = {
 			'Entwickelt nach WCAG 2.2 Stufe AA: vollständige Tastaturbedienung, Suche nach dem ARIA-Combobox-Muster, geprüfte Kontraste im hellen und dunklen Design, Statusmeldungen für Screenreader, Legende mit Farbe und Linienbreite sowie Berücksichtigung von „Bewegung reduzieren“. Alle Karteninformationen gibt es auch als Text.',
 		creditsTitle: 'Danksagung',
 		credits:
-			'Daten © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Karte © OpenStreetMap-Mitwirkende, Kacheln von OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash-Redis-Client (MIT) und MapLibre GL JS (BSD-3-Clause). Logo: Lilie vereinfacht nach „Firenze giglio gotico antico“ von Horemhat (Wikimedia Commons, CC BY-SA 4.0); das Logo steht unter derselben Lizenz.',
+			'Daten © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Karte © OpenStreetMap-Mitwirkende, Kacheln von OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash-Redis-Client (MIT) und MapLibre GL JS (BSD-3-Clause). Logo: einfarbige Lilien-Silhouette nach „Firenze giglio gotico antico“ von Horemhat (Wikimedia Commons, CC BY-SA 4.0); das Logo steht unter derselben Lizenz.',
 		notAvailable: 'k. A.',
 		disclaimerTitle: 'Hinweise',
 		disclaimer: [

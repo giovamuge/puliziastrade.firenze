@@ -358,7 +358,7 @@ export const fr = {
 			'Conçu selon les WCAG 2.2 niveau AA : navigation complète au clavier, recherche conforme au modèle ARIA combobox, contrastes vérifiés en thème clair et sombre, états annoncés aux lecteurs d’écran, légende fondée sur la couleur et l’épaisseur, respect de « réduire les animations ». Toute l’information de la carte existe aussi sous forme de texte.',
 		creditsTitle: 'Crédits',
 		credits:
-			'Données © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Carte © contributeurs OpenStreetMap, tuiles OpenFreeMap. Logiciels : SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, client Upstash Redis (MIT) et MapLibre GL JS (BSD-3-Clause). Logo : lys simplifié d’après « Firenze giglio gotico antico » de Horemhat (Wikimedia Commons, CC BY-SA 4.0) ; le logo est diffusé sous la même licence.',
+			'Données © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Carte © contributeurs OpenStreetMap, tuiles OpenFreeMap. Logiciels : SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, client Upstash Redis (MIT) et MapLibre GL JS (BSD-3-Clause). Logo : silhouette du lys, en une seule couleur, d’après « Firenze giglio gotico antico » de Horemhat (Wikimedia Commons, CC BY-SA 4.0) ; le logo est diffusé sous la même licence.',
 		notAvailable: 'n.d.',
 		disclaimerTitle: 'Avertissements',
 		disclaimer: [
