@@ -266,36 +266,36 @@ bottom-sheet-dialog-manager dialog:focus-visible {
 }
 
 /*
- * iOS page-sheet presentation (state set by sheet-backdrop.ts on the page):
- * - `data-sheet="open"`: a sheet is open, the page dims;
- * - `data-sheet="raised"`: a sheet reached its top, the page recedes into a card: it
- *   shrinks, trims the full-bleed margins into rounded corners and moves below the
- *   status bar, over the black stage.
- * Plain transitions between states (iOS sheet curve): nothing is restyled while dragging.
+ * iOS page-sheet effect: the page recedes while a bottom sheet is raised past its
+ * resting detent. `--sheet-lift` (0–1) is written by sheet-backdrop.ts; it does not
+ * inherit, so updates only restyle this element and the change stays on the compositor.
  */
+@property --sheet-lift {
+	syntax: '<number>';
+	inherits: false;
+	initial-value: 0;
+}
 @property --sheet-dim {
 	syntax: '<number>';
 	inherits: false;
 	initial-value: 0;
 }
 .sheet-backdrop {
-	--ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 	transform-origin: 50% var(--bleed);
-	clip-path: inset(0 round 0);
+	scale: calc(1 - 0.07 * var(--sheet-lift));
+	translate: 0 calc(var(--sheet-lift) * (env(safe-area-inset-top) + 0.625rem));
 	transition:
-		scale 0.5s var(--ease-sheet),
-		translate 0.5s var(--ease-sheet),
-		clip-path 0.5s var(--ease-sheet),
-		filter 0.35s ease-out;
+		--sheet-lift 0.18s ease-out,
+		--sheet-dim 0.3s ease-out;
 }
+/*
+ * While a sheet is open: dim the page (in-flow, so Safari shows it under its bars)
+ * and, as the sheet rises, trim the full-bleed margins so the page becomes a card
+ * whose rounded top edge shows below the status bar.
+ */
 .sheet-backdrop[data-sheet] {
-	filter: brightness(calc(1 - var(--sheet-dim)));
-}
-.sheet-backdrop[data-sheet='raised'] {
-	scale: 0.93;
-	translate: 0 calc(env(safe-area-inset-top) + 0.625rem);
-	clip-path: inset(var(--bleed) 0 round 1.5rem);
-	filter: brightness(calc(0.85 - var(--sheet-dim)));
+	filter: brightness(calc(1 - var(--sheet-dim) - 0.15 * var(--sheet-lift)));
+	clip-path: inset(calc(var(--bleed) * var(--sheet-lift)) 0 round calc(var(--sheet-lift) * 1.5rem));
 }
 /*
  * Sheet dialogs open non-modally (see Sheet.svelte) and catch taps outside the

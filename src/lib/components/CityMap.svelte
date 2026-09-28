@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
-	import type { ExpressionSpecification, GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent, PaddingOptions, Popup } from 'maplibre-gl';
+	import type { ExpressionSpecification, GeoJSONSource, LngLat, Map as MapLibreMap, MapLayerMouseEvent, PaddingOptions, Popup } from 'maplibre-gl';
 	import type { MapLayerDto, ReviewSummaryResponse } from '$lib/api/contracts';
 	import { api } from '$lib/client/api';
 	import { useAppState } from '$lib/client/app-state.svelte';
@@ -183,12 +183,28 @@
 	 * Leaves room for the floating controls and the street panel: sidebar (wide) or bottom sheet (~62%).
 	 * On phones the map also extends under the browser bars (full bleed), outside the visible area.
 	 */
-	function padding(): PaddingOptions {
+	function padding(): Required<PaddingOptions> {
 		const wide = wideScreen.current;
 		const edge = bleed();
 		const base = { top: (wide ? 80 : 120) + edge, right: 50, bottom: 110 + edge, left: 50 };
 		if (!app.sheetOpen) return base;
-		return wide ? { ...base, left: 470 } : { ...base, bottom: Math.round(window.innerHeight * 0.64) };
+		return wide ? { ...base, left: 470 } : { ...base, bottom: Math.round(window.innerHeight * 0.64) + edge };
+	}
+
+	/**
+	 * Where the user tapped to select the current street: the map stays there
+	 * instead of fitting the whole street, and only pans (same zoom) if the point
+	 * would end up under the street panel.
+	 */
+	let tapped: LngLat | null = null;
+
+	function keepInView(lngLat: LngLat, animate: boolean): void {
+		if (!map) return;
+		const { x, y } = map.project(lngLat);
+		const { clientWidth: width, clientHeight: height } = map.getContainer();
+		const pad = padding();
+		const visible = x >= pad.left && x <= width - pad.right && y >= pad.top && y <= height - pad.bottom;
+		if (!visible) map.easeTo({ center: lngLat, padding: pad, duration: animate && !reducedMotion() ? 500 : 0 });
 	}
 
 	function refreshSelection(animate = true, fit = true): void {
@@ -206,9 +222,15 @@
 		});
 		(map.getSource('sel') as GeoJSONSource).setData({ type: 'FeatureCollection', features: selection });
 
-		const group = selected && focus >= 0 ? selected.groups[focus] : undefined;
-		const bbox = group?.bbox ?? selected?.bbox;
-		if (fit && bbox && !(app.position && !group)) {
+		if (!fit || !selected) return;
+		if (tapped) {
+			keepInView(tapped, animate);
+			tapped = null;
+			return;
+		}
+		const group = focus >= 0 ? selected.groups[focus] : undefined;
+		const bbox = group?.bbox ?? selected.bbox;
+		if (bbox && !(app.position && !group)) {
 			const [w, s, e, n] = bbox;
 			map.fitBounds([[w, s], [e, n]], { padding: padding(), maxZoom: 17, duration: animate && !reducedMotion() ? 700 : 0 });
 		}
@@ -228,6 +250,7 @@
 		const feature = event.features?.[0];
 		if (!feature || !layer || feature.id === undefined) return;
 		const arc = Number(feature.id);
+		tapped = event.lngLat;
 		void app.selectStreet(layer.streetSlugs[layer.arcStreet[arc]!]!, layer.arcCodes[arc]!, prefs.m.street.selectedAnnounce);
 	}
 
@@ -246,6 +269,7 @@
 		const slug = road.name ? slugByName.get(foldText(road.name)) : undefined;
 		const distance = slug ? distanceToStreet(slug, event.lngLat.lng, event.lngLat.lat) : Infinity;
 		if (slug && distance <= SAME_STREET_METERS) {
+			tapped = event.lngLat;
 			void app.selectStreet(slug, null, prefs.m.street.selectedAnnounce).then(() => (app.unmappedTap = true));
 			return;
 		}
@@ -384,7 +408,8 @@
 	});
 	$effect(() => {
 		void app.position;
-		refreshPosition();
+		// Only a new position recentres: padding() also reads the panel state, which must not.
+		untrack(() => refreshPosition());
 	});
 	$effect(() => {
 		const theme = prefs.theme;
