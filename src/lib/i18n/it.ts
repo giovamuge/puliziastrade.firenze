@@ -389,7 +389,7 @@ export const it = {
 			['Log tecnici', 'Il fornitore di hosting (Vercel) registra dati tecnici delle richieste, come indirizzo IP e browser, per sicurezza e funzionamento, per un periodo limitato secondo le proprie policy.']
 		] as [string, string][],
 		cookiesTitle: 'Cookie e memorie locali',
-		cookies: 'Usiamo solo strumenti tecnici, necessari al funzionamento o alle tue preferenze: per questo non serve un banner di consenso. Nessun cookie di analisi, profilazione o di terze parti.',
+		cookies: 'Usiamo solo strumenti tecnici, necessari al funzionamento o alle tue preferenze: per questo non serve un banner di consenso. Le statistiche di visita non usano cookie; nessun cookie di profilazione o di terze parti.',
 		storage: [
 			'«theme» e «locale» nella memoria locale del browser: tema e lingua che hai scelto.',
 			'Cookie «locale» (1 anno), solo se scegli una lingua: serve a mostrare la pagina informativa nella tua lingua.',
@@ -401,6 +401,7 @@ export const it = {
 			'OpenFreeMap: il browser scarica da loro le immagini della mappa (vedono l’indirizzo IP, come ogni sito).',
 			'Upstash (Redis): archiviazione delle segnalazioni e dei dati elaborati.',
 			'Vercel: hosting dell’applicazione.',
+			'Vercel Web Analytics: statistiche aggregate e anonime sulle visite (pagine viste, provenienza, paese, tipo di dispositivo), senza cookie. I visitatori sono distinti solo tramite un hash giornaliero che non viene conservato.',
 			'Google Calendar, Outlook e Apple Calendar: solo se scegli di aggiungere il promemoria; il tuo calendario scaricherà periodicamente il file del calendario.'
 		],
 		rightsTitle: 'I tuoi diritti',

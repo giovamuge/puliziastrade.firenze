@@ -21,4 +21,4 @@ export const OFFICIAL_CHANNELS = {
 } as const;
 
 /** Date of the latest revision of the privacy & cookie notice. */
-export const PRIVACY_UPDATED_AT = '2026-09-24';
+export const PRIVACY_UPDATED_AT = '2026-09-28';

@@ -387,7 +387,7 @@ export const fr = {
 			['Journaux techniques', 'L’hébergeur (Vercel) enregistre des données techniques des requêtes, comme l’adresse IP et le navigateur, pour la sécurité et le fonctionnement, pendant une durée limitée selon ses politiques.']
 		] as [string, string][],
 		cookiesTitle: 'Cookies et stockage local',
-		cookies: 'Nous n’utilisons que des outils techniques nécessaires au service ou à vos préférences : aucun bandeau de consentement n’est donc requis. Aucun cookie d’analyse, de profilage ou tiers.',
+		cookies: 'Nous n’utilisons que des outils techniques nécessaires au service ou à vos préférences : aucun bandeau de consentement n’est donc requis. Les statistiques de visite n’utilisent pas de cookies ; aucun cookie de profilage ou tiers.',
 		storage: [
 			'« theme » et « locale » dans le stockage local : thème et langue choisis.',
 			'Cookie « locale » (1 an), seulement si vous choisissez une langue : affiche la page d’infos dans votre langue.',
@@ -399,6 +399,7 @@ export const fr = {
 			'OpenFreeMap : votre navigateur y télécharge les images de la carte (ils voient votre adresse IP, comme tout site web).',
 			'Upstash (Redis) : stockage des signalements et des données traitées.',
 			'Vercel : hébergement de l’application.',
+			'Vercel Web Analytics : statistiques de visite agrégées et anonymes (pages vues, provenance, pays, type d’appareil), sans cookies. Les visiteurs ne sont distingués que par un hachage quotidien qui n’est pas conservé.',
 			'Google Agenda, Outlook et Calendrier Apple : seulement si vous ajoutez le rappel ; votre agenda téléchargera régulièrement le fichier.'
 		],
 		rightsTitle: 'Vos droits',

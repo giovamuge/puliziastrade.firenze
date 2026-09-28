@@ -387,7 +387,7 @@ export const de = {
 			['Technische Protokolle', 'Der Hosting-Anbieter (Vercel) protokolliert technische Anfragedaten wie IP-Adresse und Browser zu Sicherheits- und Betriebszwecken für begrenzte Zeit gemäß seinen Richtlinien.']
 		] as [string, string][],
 		cookiesTitle: 'Cookies und lokaler Speicher',
-		cookies: 'Wir nutzen nur technische Mittel, die für den Dienst oder deine Einstellungen nötig sind; ein Einwilligungsbanner ist daher nicht erforderlich. Keine Analyse-, Tracking- oder Drittanbieter-Cookies.',
+		cookies: 'Wir nutzen nur technische Mittel, die für den Dienst oder deine Einstellungen nötig sind; ein Einwilligungsbanner ist daher nicht erforderlich. Die Besuchsstatistik verwendet keine Cookies; keine Tracking- oder Drittanbieter-Cookies.',
 		storage: [
 			'„theme“ und „locale“ im lokalen Speicher: gewähltes Design und Sprache.',
 			'Cookie „locale“ (1 Jahr), nur wenn du eine Sprache wählst: zeigt die Infoseite in deiner Sprache.',
@@ -399,6 +399,7 @@ export const de = {
 			'OpenFreeMap: Dein Browser lädt dort die Kartenbilder (sie sehen deine IP-Adresse, wie jede Website).',
 			'Upstash (Redis): Speicherung von Meldungen und verarbeiteten Daten.',
 			'Vercel: Hosting der Anwendung.',
+			'Vercel Web Analytics: zusammengefasste, anonyme Besuchsstatistiken (Seitenaufrufe, Herkunft, Land, Gerätetyp) ohne Cookies. Besucher werden nur über einen täglichen Hash unterschieden, der nicht gespeichert wird.',
 			'Google Kalender, Outlook und Apple Kalender: nur wenn du die Erinnerung hinzufügst; dein Kalender lädt die Datei regelmäßig herunter.'
 		],
 		rightsTitle: 'Deine Rechte',
