@@ -384,7 +384,7 @@ export const it = {
 		dataTitle: 'Quali dati trattiamo',
 		data: [
 			['Posizione', 'Solo quando tocchi il pulsante della posizione: le coordinate vengono inviate una volta al server per trovare le strade vicine e poi scartate. Non vengono salvate, messe in cache o scritte nei log dell’applicazione.'],
-			['Segnalazioni', 'Esito, voto, eventuale nota e orario del cartello, insieme a via, tratto e data. Sono anonime e pubbliche. Restano visibili fino alle ultime 50 per via; i totali mensili vengono cancellati dopo circa 70 giorni. Non scrivere dati personali nelle note.'],
+			['Segnalazioni', 'Esito, voto, eventuale nota e orario del cartello, insieme a via, tratto e data. Sono anonime e pubbliche. Restano visibili fino alle ultime 50 per via; i totali mensili vengono cancellati dopo circa 70 giorni. Il titolare le rivede e può inoltrarle, in forma aggregata, al Comune di Firenze o ad Alia per migliorare il servizio. Non scrivere dati personali nelle note.'],
 			['Prevenzione abusi', 'Per limitare invii ripetuti calcoliamo un’impronta anonima (hash di indirizzo IP, browser e giorno, con una chiave segreta) che non permette di risalire all’IP e scade entro 3 giorni. L’indirizzo IP non viene salvato.'],
 			['Log tecnici', 'Il fornitore di hosting (Vercel) registra dati tecnici delle richieste, come indirizzo IP e browser, per sicurezza e funzionamento, per un periodo limitato secondo le proprie policy.']
 		] as [string, string][],
@@ -401,6 +401,7 @@ export const it = {
 			'OpenFreeMap: il browser scarica da loro le immagini della mappa (vedono l’indirizzo IP, come ogni sito).',
 			'Upstash (Redis): archiviazione delle segnalazioni e dei dati elaborati.',
 			'Vercel: hosting dell’applicazione.',
+			'GitHub: le segnalazioni (senza alcun dato che ti identifichi) vengono copiate in un archivio privato per essere riviste dal titolare prima di un eventuale inoltro, in forma aggregata, al Comune di Firenze o ad Alia.',
 			'Vercel Web Analytics: statistiche aggregate e anonime sulle visite (pagine viste, provenienza, paese, tipo di dispositivo), senza cookie. I visitatori sono distinti solo tramite un hash giornaliero che non viene conservato.',
 			'Google Calendar, Outlook e Apple Calendar: solo se scegli di aggiungere il promemoria; il tuo calendario scaricherà periodicamente il file del calendario.'
 		],

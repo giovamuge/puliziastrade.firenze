@@ -386,7 +386,7 @@ export const en = {
 		dataTitle: 'What data we process',
 		data: [
 			['Location', 'Only when you tap the location button: coordinates are sent once to the server to find nearby streets and then discarded. They are not stored, cached or written to application logs.'],
-			['Reports', 'Outcome, rating, optional note and sign time, with street, segment and date. They are anonymous and public. The latest 50 per street stay visible; monthly totals are deleted after about 70 days. Do not write personal data in notes.'],
+			['Reports', 'Outcome, rating, optional note and sign time, with street, segment and date. They are anonymous and public. The latest 50 per street stay visible; monthly totals are deleted after about 70 days. The controller reviews them and may forward them, aggregated, to the City of Florence or Alia to improve the service. Do not write personal data in notes.'],
 			['Abuse prevention', 'To limit repeated submissions we compute an anonymous fingerprint (hash of IP address, browser and day, with a secret key) that cannot be traced back to the IP and expires within 3 days. The IP address is not stored.'],
 			['Technical logs', 'The hosting provider (Vercel) records technical request data such as IP address and browser for security and operation, for a limited time under its own policies.']
 		] as [string, string][],
@@ -403,6 +403,7 @@ export const en = {
 			'OpenFreeMap: your browser downloads the map images from them (they see your IP address, as any website does).',
 			'Upstash (Redis): storage of reports and processed data.',
 			'Vercel: application hosting.',
+			'GitHub: reports (without any data identifying you) are copied into a private archive so the controller can review them before possibly forwarding them, aggregated, to the City of Florence or Alia.',
 			'Vercel Web Analytics: aggregated, anonymous visit statistics (page views, referrer, country, device type), without cookies. Visitors are told apart only by a daily hash that is not stored.',
 			'Google Calendar, Outlook and Apple Calendar: only if you add the reminder; your calendar will periodically download the calendar file.'
 		],

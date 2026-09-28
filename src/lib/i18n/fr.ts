@@ -382,7 +382,7 @@ export const fr = {
 		dataTitle: 'Données traitées',
 		data: [
 			['Position', 'Uniquement quand vous touchez le bouton de position : les coordonnées sont envoyées une fois au serveur pour trouver les rues proches puis supprimées. Elles ne sont ni enregistrées, ni mises en cache, ni écrites dans les journaux de l’application.'],
-			['Signalements', 'Résultat, note, commentaire facultatif et horaire du panneau, avec rue, tronçon et date. Ils sont anonymes et publics. Les 50 derniers par rue restent visibles ; les totaux mensuels sont supprimés après environ 70 jours. N’écrivez pas de données personnelles dans les commentaires.'],
+			['Signalements', 'Résultat, note, commentaire facultatif et horaire du panneau, avec rue, tronçon et date. Ils sont anonymes et publics. Les 50 derniers par rue restent visibles ; les totaux mensuels sont supprimés après environ 70 jours. Le responsable les examine et peut les transmettre, de manière agrégée, à la Ville de Florence ou à Alia pour améliorer le service. N’écrivez pas de données personnelles dans les commentaires.'],
 			['Prévention des abus', 'Pour limiter les envois répétés, nous calculons une empreinte anonyme (hachage de l’adresse IP, du navigateur et du jour, avec une clé secrète) qui ne permet pas de retrouver l’IP et expire sous 3 jours. L’adresse IP n’est pas enregistrée.'],
 			['Journaux techniques', 'L’hébergeur (Vercel) enregistre des données techniques des requêtes, comme l’adresse IP et le navigateur, pour la sécurité et le fonctionnement, pendant une durée limitée selon ses politiques.']
 		] as [string, string][],
@@ -399,6 +399,7 @@ export const fr = {
 			'OpenFreeMap : votre navigateur y télécharge les images de la carte (ils voient votre adresse IP, comme tout site web).',
 			'Upstash (Redis) : stockage des signalements et des données traitées.',
 			'Vercel : hébergement de l’application.',
+			'GitHub : les signalements (sans aucune donnée vous identifiant) sont copiés dans une archive privée afin que le responsable les examine avant de les transmettre éventuellement, de manière agrégée, à la Ville de Florence ou à Alia.',
 			'Vercel Web Analytics : statistiques de visite agrégées et anonymes (pages vues, provenance, pays, type d’appareil), sans cookies. Les visiteurs ne sont distingués que par un hachage quotidien qui n’est pas conservé.',
 			'Google Agenda, Outlook et Calendrier Apple : seulement si vous ajoutez le rappel ; votre agenda téléchargera régulièrement le fichier.'
 		],

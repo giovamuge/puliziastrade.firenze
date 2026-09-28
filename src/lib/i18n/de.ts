@@ -382,7 +382,7 @@ export const de = {
 		dataTitle: 'Welche Daten wir verarbeiten',
 		data: [
 			['Standort', 'Nur wenn du auf die Standort-Schaltfläche tippst: Die Koordinaten werden einmal an den Server gesendet, um Straßen in der Nähe zu finden, und dann verworfen. Sie werden weder gespeichert noch zwischengespeichert noch in Anwendungsprotokolle geschrieben.'],
-			['Meldungen', 'Ergebnis, Bewertung, optionale Notiz und Uhrzeit vom Schild, mit Straße, Abschnitt und Datum. Sie sind anonym und öffentlich. Die letzten 50 pro Straße bleiben sichtbar; Monatssummen werden nach etwa 70 Tagen gelöscht. Keine persönlichen Daten in Notizen schreiben.'],
+			['Meldungen', 'Ergebnis, Bewertung, optionale Notiz und Uhrzeit vom Schild, mit Straße, Abschnitt und Datum. Sie sind anonym und öffentlich. Die letzten 50 pro Straße bleiben sichtbar; Monatssummen werden nach etwa 70 Tagen gelöscht. Der Verantwortliche prüft sie und kann sie zusammengefasst an die Stadt Florenz oder Alia weiterleiten, um den Dienst zu verbessern. Keine persönlichen Daten in Notizen schreiben.'],
 			['Missbrauchsschutz', 'Gegen wiederholte Meldungen berechnen wir einen anonymen Fingerabdruck (Hash aus IP-Adresse, Browser und Tag mit geheimem Schlüssel), aus dem sich die IP nicht ableiten lässt und der nach 3 Tagen verfällt. Die IP-Adresse wird nicht gespeichert.'],
 			['Technische Protokolle', 'Der Hosting-Anbieter (Vercel) protokolliert technische Anfragedaten wie IP-Adresse und Browser zu Sicherheits- und Betriebszwecken für begrenzte Zeit gemäß seinen Richtlinien.']
 		] as [string, string][],
@@ -399,6 +399,7 @@ export const de = {
 			'OpenFreeMap: Dein Browser lädt dort die Kartenbilder (sie sehen deine IP-Adresse, wie jede Website).',
 			'Upstash (Redis): Speicherung von Meldungen und verarbeiteten Daten.',
 			'Vercel: Hosting der Anwendung.',
+			'GitHub: Meldungen (ohne Daten, die dich identifizieren) werden in ein privates Archiv kopiert, damit der Verantwortliche sie prüfen kann, bevor sie gegebenenfalls zusammengefasst an die Stadt Florenz oder Alia weitergeleitet werden.',
 			'Vercel Web Analytics: zusammengefasste, anonyme Besuchsstatistiken (Seitenaufrufe, Herkunft, Land, Gerätetyp) ohne Cookies. Besucher werden nur über einen täglichen Hash unterschieden, der nicht gespeichert wird.',
 			'Google Kalender, Outlook und Apple Kalender: nur wenn du die Erinnerung hinzufügst; dein Kalender lädt die Datei regelmäßig herunter.'
 		],

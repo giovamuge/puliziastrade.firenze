@@ -382,7 +382,7 @@ export const es = {
 		dataTitle: 'Qué datos tratamos',
 		data: [
 			['Ubicación', 'Solo cuando tocas el botón de ubicación: las coordenadas se envían una vez al servidor para encontrar calles cercanas y luego se descartan. No se guardan, ni se almacenan en caché, ni se escriben en los registros de la aplicación.'],
-			['Informes', 'Resultado, valoración, nota opcional y horario de la señal, con calle, tramo y fecha. Son anónimos y públicos. Se muestran los últimos 50 por calle; los totales mensuales se borran tras unos 70 días. No escribas datos personales en las notas.'],
+			['Informes', 'Resultado, valoración, nota opcional y horario de la señal, con calle, tramo y fecha. Son anónimos y públicos. Se muestran los últimos 50 por calle; los totales mensuales se borran tras unos 70 días. El responsable los revisa y puede enviarlos, de forma agregada, al Ayuntamiento de Florencia o a Alia para mejorar el servicio. No escribas datos personales en las notas.'],
 			['Prevención de abusos', 'Para limitar envíos repetidos calculamos una huella anónima (hash de IP, navegador y día, con una clave secreta) que no permite obtener la IP y caduca en 3 días. La IP no se guarda.'],
 			['Registros técnicos', 'El proveedor de alojamiento (Vercel) registra datos técnicos de las solicitudes, como IP y navegador, por seguridad y funcionamiento, durante un tiempo limitado según sus políticas.']
 		] as [string, string][],
@@ -399,6 +399,7 @@ export const es = {
 			'OpenFreeMap: el navegador descarga de ellos las imágenes del mapa (ven tu IP, como cualquier sitio web).',
 			'Upstash (Redis): almacenamiento de informes y datos procesados.',
 			'Vercel: alojamiento de la aplicación.',
+			'GitHub: los informes (sin ningún dato que te identifique) se copian en un archivo privado para que el responsable los revise antes de enviarlos, de forma agregada, al Ayuntamiento de Florencia o a Alia.',
 			'Vercel Web Analytics: estadísticas agregadas y anónimas de visitas (páginas vistas, procedencia, país, tipo de dispositivo), sin cookies. Los visitantes se distinguen solo mediante un hash diario que no se conserva.',
 			'Google Calendar, Outlook y Apple Calendar: solo si añades el recordatorio; tu calendario descargará periódicamente el archivo.'
 		],
