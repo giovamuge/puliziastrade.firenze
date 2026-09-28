@@ -1,7 +1,7 @@
 /**
  * iOS-style page sheet: the page behind open bottom sheets dims, and while a
- * sheet is raised past its resting detent the page also shrinks, rounds its
- * corners and moves below the status bar (see `.sheet-backdrop` in app.css).
+ * sheet is raised past its resting detent the page also shrinks around the
+ * centre of the screen and rounds its corners (see `.sheet-backdrop` in app.css).
  *
  * The dimming lives on the page, not on a dialog `::backdrop`: Safari 26 tints
  * its bars by sampling fixed backgrounds (and with a modal dialog open it stops
