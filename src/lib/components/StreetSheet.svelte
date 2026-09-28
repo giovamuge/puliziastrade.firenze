@@ -33,10 +33,15 @@
 	const m = $derived(prefs.m);
 
 	const street = $derived(app.selected);
+	/**
+	 * Where it starts and ends: the chosen stretch, or else the whole street when it is one continuous
+	 * piece with known end streets. The type is already in the name, the length lives in the technical details.
+	 */
 	const subtitle = $derived.by(() => {
 		if (!street) return '';
-		const base = `${street.type} · ${prefs.f.distance(model.totalLength)}`;
-		return model.focus >= 0 && model.multiGroup ? `${base} · ${model.groupLabel(model.focus)}` : base;
+		if (model.focus >= 0 && model.multiGroup) return model.groupLabel(model.focus);
+		const [only] = street.sections;
+		return street.sections.length === 1 && only && only.between.length ? prefs.f.between(only.between, 0) : '';
 	});
 	const viewTitle = $derived(app.view === 'overview' ? '' : m.street.views[app.view as Exclude<StreetView, 'overview'>]);
 
@@ -65,10 +70,10 @@
 		{:else}
 			<div class="flex items-start gap-3 py-1">
 				<div class="min-w-0 flex-1">
-					<h2 id="street-title" class="text-2xl leading-tight font-semibold outline-none" tabindex="-1">
+					<h2 id="street-title" class="text-[1.625rem] leading-tight font-semibold outline-none" tabindex="-1">
 						{street?.name ?? m.common.loading}
 					</h2>
-					{#if street}<p class="text-muted truncate text-sm">{subtitle}</p>{/if}
+					{#if subtitle}<p class="text-muted mt-0.5 text-sm">{subtitle}</p>{/if}
 				</div>
 				<button type="button" class="btn-ghost size-10 min-h-10 shrink-0 px-0" onclick={() => app.clearSelection()} aria-label={street ? m.street.close(street.name) : m.common.close}>
 					<Icon name="close" />

@@ -42,7 +42,7 @@
 </script>
 
 <section aria-labelledby="strip-title">
-	<h3 id="strip-title" class="text-muted mb-2 font-sans text-xs font-semibold tracking-wide uppercase">{prefs.m.street.next14}</h3>
+	<h3 id="strip-title" class="mb-2 text-sm font-semibold">{prefs.m.street.next14}</h3>
 	<ol class="grid grid-cols-7 gap-1.5">
 		{#each cells as cell (cell.day)}
 			<li

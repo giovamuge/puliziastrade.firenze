@@ -1,4 +1,4 @@
-import type { ExpressionSpecification } from 'maplibre-gl';
+import type { ExpressionSpecification, StyleSpecification } from 'maplibre-gl';
 import type { Messages } from '$lib/i18n';
 import type { MapMode } from './app-state.svelte';
 import type { Theme } from './preferences.svelte';
@@ -17,6 +17,18 @@ export const BASEMAP = {
 	light: 'https://tiles.openfreemap.org/styles/positron',
 	dark: 'https://tiles.openfreemap.org/styles/dark'
 } as const;
+
+/**
+ * Trims the OpenFreeMap basemap before MapLibre commits it (`setStyle` transformStyle):
+ * the road-shield layers (US interstate and the like) are useless in Florence and their
+ * filters read a null `ref_length`, warning on every load.
+ */
+export function trimBasemap(_previous: StyleSpecification | undefined, next: StyleSpecification): StyleSpecification {
+	return { ...next, layers: next.layers.filter((layer) => !layer.id.includes('shield')) };
+}
+
+/** 1×1 transparent image for sprite entries the basemap references but does not ship (e.g. "wood-pattern"). */
+export const EMPTY_IMAGE = { width: 1, height: 1, data: new Uint8Array(4) };
 
 export const ACCENT = { light: '#5b2a86', dark: '#c3a0ec' } as const;
 /**

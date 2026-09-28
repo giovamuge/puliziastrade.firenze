@@ -22,6 +22,8 @@
 	 *
 	 * - Phones: bottom sheet (pure-web-bottom-sheet on a native <dialog>):
 	 *   CSS scroll-snap drag physics, dismiss by swiping down, tapping outside or Esc.
+	 *   The first upward scroll expands the sheet to full height; only then does its
+	 *   content scroll (`expand-to-scroll`).
 	 *   The dialog is opened non-modally with modal behaviour rebuilt here and in
 	 *   sheet-backdrop.ts (page inert and dimmed, full-screen tap catcher, Esc):
 	 *   with a modal dialog Safari 26 stops drawing the page under its status bar.
@@ -176,6 +178,7 @@
 {#if wide}
 	{#if open}
 		<aside
+			data-sheet-panel
 			bind:this={panel}
 			class="glass fixed top-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex w-(--sidebar-w) flex-col overflow-hidden {variant === 'sub' ? 'z-40 shadow-2xl' : 'z-30'}"
 			aria-labelledby={labelledby}
@@ -196,7 +199,7 @@
 			buttons never fired and the sheet closed. Opening focuses the heading instead.
 		-->
 		<dialog bind:this={dialog} aria-labelledby={labelledby} aria-modal="true" onclose={onDialogClose} onclick={onDialogClick} onkeydown={onDialogKeydown}>
-			<bottom-sheet {@attach sheetBehaviour} class={variant === 'sub' ? 'sheet-sub' : ''} swipe-to-dismiss nested-scroll>
+			<bottom-sheet data-sheet-panel {@attach sheetBehaviour} class={variant === 'sub' ? 'sheet-sub' : ''} swipe-to-dismiss nested-scroll expand-to-scroll>
 				{#each snaps as snap, i (snap)}
 					<div slot="snap" style="--snap: {snap}" class={[i === initial && 'initial', i === 0 && snap === '100%' && 'top']}></div>
 				{/each}

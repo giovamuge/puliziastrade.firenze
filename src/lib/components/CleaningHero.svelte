@@ -7,16 +7,19 @@
 	import Icon from './Icon.svelte';
 
 	/**
-	 * "When is the next sweep?" at a glance: a calendar leaf with the date, the
-	 * relative moment in large type, the time window, and what to do with the
-	 * car. While a sweep is in progress a bar shows how much is left.
+	 * "When is the next sweep?" at a glance, in one card: the calendar leaf beside
+	 * the title with how far away it is and the time window in large type, then
+	 * what to do with the car. The stretch is not repeated here: the sheet
+	 * header already names it. While a sweep is in progress a bar shows how much is left.
 	 */
-	let { window: slot, scope }: { window: CleaningWindowDto | null; scope: string | null } = $props();
+	let { window: slot }: { window: CleaningWindowDto | null } = $props();
 	const app = useAppState();
 	const prefs = usePreferences();
+	const uid = $props.id();
 
 	const status = $derived(windowStatus(slot, app.clock.now, prefs.f));
 	const day = $derived(slot ? parseIsoDate(slot.date) : -1);
+	/** Calendar leaf: weekday, day and month, as on a tear-off calendar. */
 	const leaf = $derived(
 		day < 0
 			? null
@@ -26,33 +29,37 @@
 					month: new Intl.DateTimeFormat(prefs.locale, { month: 'short', timeZone: 'UTC' }).format(day * 86_400_000)
 				}
 	);
+	const time = $derived(
+		slot ? (status.tone === 'now' ? prefs.m.status.until(formatMinutes(slot.end)) : prefs.f.timeWindow(slot.from, slot.to)) : null
+	);
 	const progress = $derived(
 		status.tone === 'now' && slot ? Math.min(100, Math.max(0, ((app.clock.now.minute - slot.from) / (slot.end - slot.from)) * 100)) : null
 	);
 </script>
 
-<section class="overflow-hidden rounded-3xl {TONE_CLASSES[status.tone]}" aria-live="polite" aria-atomic="true">
-	<div class="flex items-stretch gap-4 p-4">
+<section class="overflow-hidden rounded-3xl {TONE_CLASSES[status.tone]}" aria-labelledby="{uid}-title" aria-live="polite" aria-atomic="true">
+	<div class="flex items-center gap-4 p-4">
 		{#if leaf}
 			<div class="bg-surface text-text flex w-[4.5rem] shrink-0 flex-col overflow-hidden rounded-2xl text-center shadow-sm" aria-hidden="true">
 				<span class="bg-primary text-on-primary py-1 text-[0.7rem] font-bold tracking-wider uppercase">{leaf.weekday}</span>
-				<span class="font-serif text-4xl leading-tight font-semibold">{leaf.date}</span>
+				<span class="text-4xl leading-tight font-semibold tabular-nums">{leaf.date}</span>
 				<span class="text-muted pb-1.5 text-xs font-semibold uppercase">{leaf.month}</span>
 			</div>
 		{/if}
-		<div class="min-w-0 flex-1">
-			<p class="text-xs font-bold tracking-wide uppercase opacity-90">{prefs.m.status.nextTitle}</p>
-			<p class="font-serif text-[1.7rem] leading-tight font-semibold">
-				{status.badge}
-			</p>
-			{#if slot}
-				<p class="mt-0.5 flex items-center gap-1.5 text-lg font-semibold tabular-nums">
-					<Icon name="calendar" size={18} class="shrink-0 opacity-80" />
-					{#if status.tone === 'now'}{prefs.m.status.until(formatMinutes(slot.end))}{:else}{prefs.f.timeWindow(slot.from, slot.to)}{/if}
+		<!-- One group beside the leaf: title and how far away it is, then the time window filling the width. -->
+		<div class="@container min-w-0 flex-1">
+			<div class="flex flex-wrap items-center place-content-between gap-x-2 gap-y-1">
+				<h3 id="{uid}-title" class="text-sm font-semibold opacity-80">{prefs.m.status.nextTitle}</h3>
+				{#if slot}<span class="rounded-full bg-black/10 px-2.5 py-0.5 text-sm font-semibold whitespace-nowrap">{status.badge}</span>{/if}
+			</div>
+			{#if slot && time}
+				<p class="mt-1.5 leading-none font-semibold tracking-[-0.02em] whitespace-nowrap tabular-nums" style:font-size="min(3.5rem, calc(100cqi / {(time.length * 0.56).toFixed(2)}))">
+					{time}
 				</p>
 				<p class="sr-only">{status.headline}</p>
+			{:else}
+				<p class="mt-1 text-2xl leading-tight font-semibold">{status.badge}</p>
 			{/if}
-			{#if scope}<p class="mt-1 text-sm font-medium opacity-90">{scope}</p>{/if}
 		</div>
 	</div>
 
@@ -62,7 +69,7 @@
 		</div>
 	{/if}
 
-	<p class="flex items-start gap-2 bg-black/10 px-4 py-2.5 text-sm font-medium">
+	<p class="flex items-start gap-2 bg-black/10 px-4 py-2.5 text-sm">
 		<Icon name="car" size={18} class="mt-0.5 shrink-0" />{status.advice}
 	</p>
 </section>

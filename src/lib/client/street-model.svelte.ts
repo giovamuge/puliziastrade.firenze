@@ -46,13 +46,6 @@ export class StreetModel {
 		return this.focusUpcoming[0] ?? (this.focus >= 0 ? (street.groups[this.focus]?.next ?? null) : street.next);
 	});
 
-	/** Where the next sweep happens, when it is not the whole street. */
-	readonly nextScope: string | null = $derived.by(() => {
-		if (this.focus >= 0 && this.multiGroup) return this.groupLabel(this.focus);
-		const first = this.focusUpcoming[0];
-		if (!this.multiGroup || !first || first.wholeStreet) return null;
-		return first.groups.map((g) => this.groupLabel(g)).join(' · ');
-	});
 
 	/** A sweep done today or yesterday (focused group if any): worth verifying. */
 	readonly lastDone: LastDone | null = $derived.by(() => {
@@ -72,8 +65,8 @@ export class StreetModel {
 		const street = this.street;
 		const g = street?.groups[index];
 		if (!street || !g) return '';
-		const label = this.prefs.f.between(g.between, index);
-		return street.sections.length > 1 ? `${this.prefs.m.street.sectionLabel(g.section + 1)} · ${label}` : label;
+		// The end streets identify the stretch; a "Part n" prefix would only repeat it.
+		return this.prefs.f.between(g.between, index);
 	}
 
 	scopeOf(o: OccurrenceDto): string {

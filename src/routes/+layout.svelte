@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
-	import { dev } from '$app/environment';
 	import { page } from '$app/state';
 	import { providePreferences } from '$lib/client/preferences.svelte';
 	import { isLocale } from '$lib/i18n';
@@ -16,10 +15,6 @@
 	$effect(() => prefs.apply());
 </script>
 
-<svelte:head>
-	<!-- Vercel Web Analytics: cookieless page views, served same-origin by Vercel (tracks client-side navigations too). -->
-	{#if !dev}<script defer src="/_vercel/insights/script.js"></script>{/if}
-</svelte:head>
 
 <a href="#main" class="bg-primary text-on-primary sr-only z-50 rounded-lg px-4 py-2 focus:not-sr-only focus:fixed focus:top-2 focus:left-2">
 	{prefs.m.common.skip}

@@ -24,8 +24,7 @@
 		const stop = app.clock.start();
 		const params = new URLSearchParams(window.location.search);
 		const slug = params.get('strada');
-		if (slug) void app.selectStreet(slug, params.get('tratto'));
-		return stop;
+		if (slug) void app.selectStreet(slug, params.get('tratto'));		return stop;
 	});
 </script>
 
@@ -70,7 +69,7 @@
 		<h1 class="sr-only">{prefs.m.meta.title}</h1>
 		<CityMap />
 
-		<div class="pointer-events-none absolute inset-x-0 top-(--bleed) z-20 h-dvh">
+		<div class="pointer-events-none absolute inset-x-0 top-0 z-20 h-dvh">
 			<!-- Top: brand (left) · filters, legend, settings (right) -->
 			<div class="absolute inset-x-0 top-0 flex items-start gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
 				<a href="/" class="glass pointer-events-auto grid size-11 shrink-0 place-items-center max-sm:hidden" aria-label={prefs.m.common.home} title="{prefs.m.common.appName} · {prefs.m.common.city}">
@@ -90,5 +89,7 @@
 </div>
 <!-- Outside the page: sheets are neither scaled nor dimmed with it, and stay reachable while it is inert. -->
 <StreetSheet />
+<!-- Eases Safari's bottom bar tint from the sheet colour back to the map (see .bar-tint). -->
+<div class="bar-tint" data-on={app.sheetOpen || undefined} aria-hidden="true"></div>
 
 <div class="sr-only" role="status" aria-live="polite">{app.announcement}</div>

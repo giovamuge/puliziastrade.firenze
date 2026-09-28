@@ -5,7 +5,7 @@
 	import { api } from '$lib/client/api';
 	import { useAppState } from '$lib/client/app-state.svelte';
 	import { toFeatureCollection } from '$lib/client/map-layer';
-	import { ACCENT, BASEMAP, GROUP_COLORS, lineColor, lineWidth } from '$lib/client/map-style';
+	import { ACCENT, BASEMAP, EMPTY_IMAGE, GROUP_COLORS, lineColor, lineWidth, trimBasemap } from '$lib/client/map-style';
 	import { groupRules } from '$lib/domain/describe';
 	import { RULE_STRIDE } from '$lib/domain/schedule';
 	import type { Weekday } from '$lib/domain/civil-date';
@@ -66,7 +66,6 @@
 				styleTheme = prefs.theme;
 				const m = new maplibregl.Map({
 					container,
-					style: BASEMAP[styleTheme],
 					center: FLORENCE,
 					zoom: 13,
 					minZoom: 10.5,
@@ -87,6 +86,11 @@
 				popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
 				infoPopup = new maplibregl.Popup({ closeButton: true, closeOnClick: true, maxWidth: '18rem', className: 'map-info' });
 
+				m.setStyle(BASEMAP[styleTheme], { transformStyle: trimBasemap });
+				// Silences "image could not be loaded" for sprite entries the basemap lacks (they draw nothing anyway).
+				m.on('styleimagemissing', (e) => {
+					if (!m.hasImage(e.id)) m.addImage(e.id, EMPTY_IMAGE);
+				});
 				m.on('style.load', installLayers);
 				m.on('error', (e) => console.warn('[map]', e.error?.message));
 				m.on('click', 'arcs-hit', onClick);
@@ -181,30 +185,15 @@
 
 	/**
 	 * Leaves room for the floating controls and the street panel: sidebar (wide) or bottom sheet (~62%).
-	 * On phones the map also extends under the browser bars (full bleed), outside the visible area.
+	 * The map starts at the screen's top edge; on phones it runs past the bottom by the
+	 * full-bleed track (off screen, under the browser toolbar), so only the bottom pads for it.
 	 */
 	function padding(): Required<PaddingOptions> {
 		const wide = wideScreen.current;
 		const edge = bleed();
-		const base = { top: (wide ? 80 : 120) + edge, right: 50, bottom: 110 + edge, left: 50 };
+		const base = { top: wide ? 80 : 120, right: 50, bottom: 110 + edge, left: 50 };
 		if (!app.sheetOpen) return base;
 		return wide ? { ...base, left: 470 } : { ...base, bottom: Math.round(window.innerHeight * 0.64) + edge };
-	}
-
-	/**
-	 * Where the user tapped to select the current street: the map stays there
-	 * instead of fitting the whole street, and only pans (same zoom) if the point
-	 * would end up under the street panel.
-	 */
-	let tapped: LngLat | null = null;
-
-	function keepInView(lngLat: LngLat, animate: boolean): void {
-		if (!map) return;
-		const { x, y } = map.project(lngLat);
-		const { clientWidth: width, clientHeight: height } = map.getContainer();
-		const pad = padding();
-		const visible = x >= pad.left && x <= width - pad.right && y >= pad.top && y <= height - pad.bottom;
-		if (!visible) map.easeTo({ center: lngLat, padding: pad, duration: animate && !reducedMotion() ? 500 : 0 });
 	}
 
 	function refreshSelection(animate = true, fit = true): void {
@@ -222,12 +211,8 @@
 		});
 		(map.getSource('sel') as GeoJSONSource).setData({ type: 'FeatureCollection', features: selection });
 
+		// Tapped on the map or chosen from search alike: zoom to the stretch (or the street), clear of the panel.
 		if (!fit || !selected) return;
-		if (tapped) {
-			keepInView(tapped, animate);
-			tapped = null;
-			return;
-		}
 		const group = focus >= 0 ? selected.groups[focus] : undefined;
 		const bbox = group?.bbox ?? selected.bbox;
 		if (bbox && !(app.position && !group)) {
@@ -250,7 +235,6 @@
 		const feature = event.features?.[0];
 		if (!feature || !layer || feature.id === undefined) return;
 		const arc = Number(feature.id);
-		tapped = event.lngLat;
 		void app.selectStreet(layer.streetSlugs[layer.arcStreet[arc]!]!, layer.arcCodes[arc]!, prefs.m.street.selectedAnnounce);
 	}
 
@@ -269,7 +253,6 @@
 		const slug = road.name ? slugByName.get(foldText(road.name)) : undefined;
 		const distance = slug ? distanceToStreet(slug, event.lngLat.lng, event.lngLat.lat) : Infinity;
 		if (slug && distance <= SAME_STREET_METERS) {
-			tapped = event.lngLat;
 			void app.selectStreet(slug, null, prefs.m.street.selectedAnnounce).then(() => (app.unmappedTap = true));
 			return;
 		}
@@ -416,7 +399,7 @@
 		if (map && styleTheme && theme !== styleTheme) {
 			styleTheme = theme;
 			status = 'loading';
-			map.setStyle(BASEMAP[theme]);
+			map.setStyle(BASEMAP[theme], { transformStyle: trimBasemap });
 		}
 	});
 	$effect(() => {

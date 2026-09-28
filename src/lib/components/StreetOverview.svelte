@@ -76,7 +76,7 @@
 		</button>
 	{/if}
 
-	<CleaningHero window={model.next} scope={model.nextScope} />
+	<CleaningHero window={model.next} />
 
 	{#if signMismatch > 0}
 		<p class="bg-tone-tomorrow text-tone-tomorrow-fg flex items-start gap-2 rounded-2xl p-3 text-sm" role="note">
@@ -87,23 +87,18 @@
 	<DayStrip occurrences={model.focusUpcoming} done={model.lastDone?.ago === 0 ? model.lastDone.occurrence : null} />
 
 	<ul class="card divide-border divide-y overflow-hidden">
-		{#if model.multiGroup}
-			<NavRow
-				icon="map"
-				title={model.focus >= 0 ? m.street.yourSegment : m.street.schedulesTitle}
-				subtitle={model.focus >= 0 ? model.groupLabel(model.focus) : m.street.schedulesHint}
-				onclick={() => (app.view = 'schedule')}
-			>
-				{#snippet trailing()}
+		<!-- One entry for the schedules: with several stretches, the dots show them (the chosen one ringed). -->
+		<NavRow icon="calendar" title={m.street.views.schedule} subtitle={ruleSummary} onclick={() => (app.view = 'schedule')}>
+			{#snippet trailing()}
+				{#if model.multiGroup}
 					<span class="flex gap-1" aria-hidden="true">
 						{#each street.groups as _, i (i)}
 							<span class="size-3 rounded-full {model.focus === i ? 'ring-text ring-2 ring-offset-1 ring-offset-transparent' : ''}" style:background-color={groupColor(prefs.theme, i)}></span>
 						{/each}
 					</span>
-				{/snippet}
-			</NavRow>
-		{/if}
-		<NavRow icon="calendar" title={m.street.views.schedule} subtitle={ruleSummary} onclick={() => (app.view = 'schedule')} />
+				{/if}
+			{/snippet}
+		</NavRow>
 		<NavRow icon="broom" title={m.street.views.upcoming} subtitle={upcomingSummary || m.street.noUpcoming} onclick={() => (app.view = 'upcoming')} />
 		{#if app.nearby && app.nearby.items.length > 1}
 			<NavRow icon="locate" title={m.street.views.nearby} subtitle={m.street.nearbyCount(app.nearby.items.length)} onclick={() => (app.view = 'nearby')} />

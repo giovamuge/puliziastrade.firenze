@@ -19,7 +19,8 @@
 				<li class="flex items-center justify-between gap-3 px-3 py-2.5">
 					<span class="min-w-0">
 						<span class="block font-medium">{prefs.f.longDate(day, true)}</span>
-						<span class="text-muted block text-sm">{prefs.f.timeWindow(o.from, o.to)} · {model.scopeOf(o)}</span>
+						<!-- The stretch only when none is chosen: otherwise every row would repeat the header. -->
+						<span class="text-muted block text-sm">{prefs.f.timeWindow(o.from, o.to)}{model.focus < 0 && model.multiGroup ? ` · ${model.scopeOf(o)}` : ''}</span>
 					</span>
 					<span class="text-muted text-sm whitespace-nowrap">{relativeDay(day, app.clock.now.day, prefs.f)}</span>
 				</li>

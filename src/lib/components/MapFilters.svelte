@@ -16,9 +16,10 @@
 		<legend class="sr-only">{prefs.m.map.filters}</legend>
 		<div class="flex gap-1">
 			{#each MODES as mode (mode)}
-				<label class="has-checked:bg-primary has-checked:text-on-primary text-text hover:bg-surface-2 has-focus-visible:outline-accent grid min-h-9 flex-1 cursor-pointer place-items-center rounded-xl px-3 text-center text-xs font-semibold whitespace-nowrap has-focus-visible:outline-2 sm:flex-none">
-					<input type="radio" class="sr-only" name="{uid}-mode" value={mode} bind:group={app.mapMode} />
-					{prefs.m.map.modes[mode]}
+				<!-- Width follows the text (flex-auto), so a long label takes the room short ones leave. -->
+				<label class="has-checked:bg-primary has-checked:text-on-primary text-text hover:bg-surface-2 has-focus-visible:outline-accent grid min-h-9 flex-auto cursor-pointer place-items-center rounded-xl px-2.5 text-center sm:px-3 text-xs font-semibold whitespace-nowrap has-focus-visible:outline-2 sm:flex-none">
+					<input type="radio" class="sr-only" name="{uid}-mode" value={mode} bind:group={app.mapMode} aria-label={prefs.m.map.modes[mode]} />
+					<span aria-hidden="true">{prefs.m.map.modesShort[mode]}</span>
 				</label>
 			{/each}
 		</div>

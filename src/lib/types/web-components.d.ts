@@ -7,6 +7,8 @@ declare module 'svelte/elements' {
 		'bottom-sheet': HTMLAttributes<HTMLElement> & {
 			'swipe-to-dismiss'?: boolean;
 			'nested-scroll'?: boolean;
+			/** With nested-scroll: the content scrolls only once the sheet is fully expanded. */
+			'expand-to-scroll'?: boolean;
 			'expand-to-scroll'?: boolean;
 			'content-height'?: boolean;
 			'onsnap-position-change'?: (event: CustomEvent<SnapPositionChangeEventDetail>) => void;
