@@ -6,3 +6,5 @@ build
 .env.*
 !.env.example
 .DS_Store
+# Real open data export used by the integration test (see README)
+alia_spazzamenti.json

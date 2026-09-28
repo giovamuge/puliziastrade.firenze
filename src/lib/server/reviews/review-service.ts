@@ -64,7 +64,9 @@ export function verifiableDays(city: CityDataset, street: number, now: RomeInsta
 
 /** Anonymous, daily-rotating client key: no IP is ever stored. */
 export async function anonymousClientKey(ip: string, userAgent: string, day: number): Promise<string> {
-	const salt = env.RATE_LIMIT_SALT || 'puliziastrade-dev-salt';
+	// Never a salt that ships in the source: fall back to the Redis token, a secret every
+	// production setup with reviews already has. The constant only serves the in-memory dev store.
+	const salt = env.RATE_LIMIT_SALT || env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN || 'puliziastrade-dev-salt';
 	const data = new TextEncoder().encode(`${salt}|${ip}|${userAgent}|${day}`);
 	const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', data));
 	let hex = '';

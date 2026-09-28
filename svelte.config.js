@@ -13,7 +13,8 @@ const config = {
 	kit: {
 		adapter: adapter({ runtime: 'nodejs22.x', regions: ['fra1'] }),
 		csp: {
-			mode: 'auto',
+			// Hashes, not nonces: SSR pages are cached on the CDN, where a nonce would be shared by every visitor.
+			mode: 'hash',
 			directives: {
 				'default-src': ['self'],
 				'script-src': ['self', prefsHash],

@@ -185,13 +185,17 @@
 
 	/**
 	 * Leaves room for the floating controls and the street panel: sidebar (wide) or bottom sheet (~62%).
-	 * The map starts at the screen's top edge; on phones it runs past the bottom by the
-	 * full-bleed track (off screen, under the browser toolbar), so only the bottom pads for it.
+	 * On phones the map also runs under the browser bars (full bleed): above the visible
+	 * area by the status-bar allowance (`--under-status`, 64 px at most), below it by the
+	 * whole track. Both are padded out so the framing matches what is on screen.
 	 */
+	/** Keep in sync with `--under-status` in app.css (4rem). */
+	const UNDER_STATUS_PX = 64;
+
 	function padding(): Required<PaddingOptions> {
 		const wide = wideScreen.current;
 		const edge = bleed();
-		const base = { top: wide ? 80 : 120, right: 50, bottom: 110 + edge, left: 50 };
+		const base = { top: (wide ? 80 : 120) + Math.min(edge, UNDER_STATUS_PX), right: 50, bottom: 110 + edge, left: 50 };
 		if (!app.sheetOpen) return base;
 		return wide ? { ...base, left: 470 } : { ...base, bottom: Math.round(window.innerHeight * 0.64) + edge };
 	}
