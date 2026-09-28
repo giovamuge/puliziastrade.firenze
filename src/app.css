@@ -354,6 +354,10 @@ bottom-sheet-dialog-manager dialog {
 	top: 0;
 	height: calc(100dvh + 2 * var(--bleed));
 }
+/* Typing: no track below, so the controls layer ends where the shrunken viewport does (see full-bleed.ts). */
+.stage[data-typing] {
+	height: calc(100dvh + var(--bleed));
+}
 
 /* Keep map controls and attribution clear of the bottom search bar and of the bleed. */
 .maplibregl-ctrl-bottom-right,
