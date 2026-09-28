@@ -3,6 +3,8 @@
 Web app per sapere **con un tocco** se oggi, stanotte o nei prossimi giorni passa la pulizia strade (spazzamento) nella via in cui ti trovi a Firenze. Include mappa, ricerca full-text con autocompletamento, calendari iCal con promemoria e verifiche dei cittadini.
 
 > Progetto indipendente e non ufficiale. Dati: [Comune di Firenze – Pulizia Strade](https://opendata.comune.fi.it/page_dataset_show?id=pulizia-strade) (Alia S.p.A.), licenza **CC BY-NC-SA 4.0** (uso non commerciale).
+>
+> Logo: il giglio è la sagoma, ridotta a un solo colore, di [Firenze giglio gotico antico](https://commons.wikimedia.org/wiki/File:Firenze_giglio_gotico_antico.svg) di Horemhat, licenza [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Il logo (`static/favicon.svg`, le icone in `static/` e `BrandMark.svelte`) è quindi distribuito con licenza CC BY-SA 4.0; il resto del codice resta MIT.
 
 ## Stack
 

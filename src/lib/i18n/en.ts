@@ -71,7 +71,7 @@ export const en = {
 	},
 	locate: {
 		button: 'When is cleaning at my location?',
-		short: 'At my location',
+		label: 'My location',
 		locating: 'Finding your location…',
 		privacy: 'Your location is used once to find streets within 150 m. It is not stored.',
 		unsupported: 'Your device does not support geolocation. Search the street by name.',
@@ -85,7 +85,7 @@ export const en = {
 	},
 	search: {
 		label: 'Search a street or square',
-		placeholder: 'Enter an address for details',
+		placeholder: 'Street or address',
 		hint: 'Type at least two letters. Abbreviations like v., p.za, vle work too.',
 		clear: 'Clear search',
 		results: (n: number) => `${n} ${plural(n, 'result', 'results')}. Use the arrow keys to choose.`,
@@ -362,7 +362,7 @@ export const en = {
 			'Designed to WCAG 2.2 level AA: full keyboard navigation, search following the ARIA combobox pattern, contrast checked in light and dark themes, status changes announced to screen readers, legend using colour and width, and respect for “reduce motion”. Everything on the map is also available as text.',
 		creditsTitle: 'Credits',
 		credits:
-			'Data © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Map © OpenStreetMap contributors, OpenFreeMap tiles. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash Redis client (MIT) and MapLibre GL JS (BSD-3-Clause).',
+			'Data © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Map © OpenStreetMap contributors, OpenFreeMap tiles. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash Redis client (MIT) and MapLibre GL JS (BSD-3-Clause). Logo: lily silhouette, in one colour, from “Firenze giglio gotico antico” by Horemhat (Wikimedia Commons, CC BY-SA 4.0); the logo is shared under the same licence.',
 		notAvailable: 'n/a',
 		disclaimerTitle: 'Disclaimer',
 		disclaimer: [

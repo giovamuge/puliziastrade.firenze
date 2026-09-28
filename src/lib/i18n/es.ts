@@ -67,7 +67,7 @@ export const es = {
 	},
 	locate: {
 		button: '¿Cuándo limpian en mi ubicación?',
-		short: 'En mi ubicación',
+		label: 'Mi ubicación',
 		locating: 'Buscando tu ubicación…',
 		privacy: 'Usamos tu ubicación una sola vez para encontrar calles a menos de 150 m. No se guarda.',
 		unsupported: 'Tu dispositivo no admite geolocalización. Busca la calle por nombre.',
@@ -81,7 +81,7 @@ export const es = {
 	},
 	search: {
 		label: 'Busca una calle o plaza',
-		placeholder: 'Escribe una dirección para ver detalles',
+		placeholder: 'Calle o dirección',
 		hint: 'Escribe al menos dos letras. Puedes usar abreviaturas como v., p.za, vle.',
 		clear: 'Borrar búsqueda',
 		results: (n: number) => `${n} ${plural(n, 'resultado', 'resultados')}. Usa las flechas para elegir.`,
@@ -358,7 +358,7 @@ export const es = {
 			'Diseñado según WCAG 2.2 nivel AA: navegación completa con teclado, búsqueda conforme al patrón ARIA combobox, contrastes verificados en tema claro y oscuro, estados anunciados a lectores de pantalla, leyenda basada en color y grosor, y respeto de «reducir movimiento». Toda la información del mapa también está disponible como texto.',
 		creditsTitle: 'Créditos',
 		credits:
-			'Datos © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Mapa © colaboradores de OpenStreetMap, teselas OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, cliente Upstash Redis (MIT) y MapLibre GL JS (BSD-3-Clause).',
+			'Datos © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Mapa © colaboradores de OpenStreetMap, teselas OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, cliente Upstash Redis (MIT) y MapLibre GL JS (BSD-3-Clause). Logo: silueta del lirio, en un solo color, a partir de «Firenze giglio gotico antico» de Horemhat (Wikimedia Commons, CC BY-SA 4.0); el logo se distribuye con la misma licencia.',
 		notAvailable: 'n/d',
 		disclaimerTitle: 'Avisos',
 		disclaimer: [

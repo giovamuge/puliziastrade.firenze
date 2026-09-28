@@ -67,7 +67,7 @@ export const fr = {
 	},
 	locate: {
 		button: 'Quand nettoie-t-on à ma position ?',
-		short: 'À ma position',
+		label: 'Ma position',
 		locating: 'Recherche de votre position…',
 		privacy: 'Votre position est utilisée une seule fois pour trouver les rues à moins de 150 m. Elle n’est pas enregistrée.',
 		unsupported: 'Votre appareil ne prend pas en charge la géolocalisation. Cherchez la rue par son nom.',
@@ -81,7 +81,7 @@ export const fr = {
 	},
 	search: {
 		label: 'Chercher une rue ou une place',
-		placeholder: 'Saisissez une adresse pour les détails',
+		placeholder: 'Rue ou adresse',
 		hint: 'Tapez au moins deux lettres. Les abréviations comme v., p.za, vle fonctionnent.',
 		clear: 'Effacer la recherche',
 		results: (n: number) => `${n} ${plural(n, 'résultat', 'résultats')}. Utilisez les flèches pour choisir.`,
@@ -358,7 +358,7 @@ export const fr = {
 			'Conçu selon les WCAG 2.2 niveau AA : navigation complète au clavier, recherche conforme au modèle ARIA combobox, contrastes vérifiés en thème clair et sombre, états annoncés aux lecteurs d’écran, légende fondée sur la couleur et l’épaisseur, respect de « réduire les animations ». Toute l’information de la carte existe aussi sous forme de texte.',
 		creditsTitle: 'Crédits',
 		credits:
-			'Données © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Carte © contributeurs OpenStreetMap, tuiles OpenFreeMap. Logiciels : SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, client Upstash Redis (MIT) et MapLibre GL JS (BSD-3-Clause).',
+			'Données © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Carte © contributeurs OpenStreetMap, tuiles OpenFreeMap. Logiciels : SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, client Upstash Redis (MIT) et MapLibre GL JS (BSD-3-Clause). Logo : silhouette du lys, en une seule couleur, d’après « Firenze giglio gotico antico » de Horemhat (Wikimedia Commons, CC BY-SA 4.0) ; le logo est diffusé sous la même licence.',
 		notAvailable: 'n.d.',
 		disclaimerTitle: 'Avertissements',
 		disclaimer: [
