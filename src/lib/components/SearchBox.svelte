@@ -147,7 +147,7 @@
 		id={listId}
 		role="listbox"
 		aria-label={prefs.m.search.listLabel}
-		class="glass scroll-fade absolute bottom-full z-30 mb-2 max-h-[55dvh] w-full overflow-auto p-1"
+		class="glass scroll-fade absolute bottom-full z-30 mb-2 max-h-[min(55dvh,calc(var(--kb-room,100dvh)-6rem))] w-full overflow-auto p-1"
 		hidden={!open || (!results.length && !error)}
 	>
 		{#if error}
