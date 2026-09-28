@@ -36,16 +36,17 @@
 	{/if}
 	<div class="pointer-events-auto flex w-full max-w-xl items-center gap-2" data-dock-anchor>
 		<div class="min-w-0 flex-1"><SearchBox /></div>
+		<!-- The visible text is the accessible name; the title adds the full question for pointer users. -->
 		<button
 			type="button"
-			class="btn-primary size-14 shrink-0 rounded-full px-0 shadow-xl shadow-black/20"
+			class="btn-primary h-14 shrink-0 rounded-full px-4 whitespace-nowrap shadow-xl shadow-black/20"
 			onclick={() => app.locate(() => prefs.m)}
 			disabled={locating}
-			aria-label={locating ? prefs.m.locate.locating : prefs.m.locate.button}
+			aria-busy={locating}
 			title={prefs.m.locate.button}
 			aria-describedby="locate-privacy"
 		>
-			<Icon name="locate" size={24} class={locating ? 'animate-spin' : ''} />
+			{#if locating}<Icon name="locate" size={16} class="animate-spin" />{/if}{prefs.m.locate.label}
 		</button>
 	</div>
 	<p id="locate-privacy" class="sr-only">{prefs.m.locate.privacy}</p>

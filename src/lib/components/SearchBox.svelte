@@ -128,7 +128,7 @@
 			aria-controls={listId}
 			aria-activedescendant={open && active >= 0 ? `${uid}-opt-${active}` : undefined}
 			aria-describedby="{uid}-hint"
-			class="glass placeholder:text-muted focus:border-accent h-14 w-full rounded-full pr-11 pl-12 text-base outline-none"
+			class="glass placeholder:text-muted focus:border-accent h-14 w-full rounded-full pl-12 text-base outline-none {query ? 'pr-11' : 'pr-4'}"
 			oninput={onInput}
 			onkeydown={onKeydown}
 			onfocus={() => results.length && (open = true)}

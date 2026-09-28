@@ -67,7 +67,7 @@ export const de = {
 	},
 	locate: {
 		button: 'Wann wird an meinem Standort gereinigt?',
-		short: 'An meinem Standort',
+		label: 'Mein Standort',
 		locating: 'Standort wird ermittelt…',
 		privacy: 'Dein Standort wird einmalig verwendet, um Straßen im Umkreis von 150 m zu finden. Er wird nicht gespeichert.',
 		unsupported: 'Dein Gerät unterstützt keine Standortbestimmung. Suche die Straße nach Namen.',
@@ -81,7 +81,7 @@ export const de = {
 	},
 	search: {
 		label: 'Straße oder Platz suchen',
-		placeholder: 'Adresse eingeben für Details',
+		placeholder: 'Straße oder Adresse',
 		hint: 'Gib mindestens zwei Buchstaben ein. Abkürzungen wie v., p.za, vle funktionieren auch.',
 		clear: 'Suche löschen',
 		results: (n: number) => `${n} ${plural(n, 'Ergebnis', 'Ergebnisse')}. Mit den Pfeiltasten auswählen.`,
@@ -358,7 +358,7 @@ export const de = {
 			'Entwickelt nach WCAG 2.2 Stufe AA: vollständige Tastaturbedienung, Suche nach dem ARIA-Combobox-Muster, geprüfte Kontraste im hellen und dunklen Design, Statusmeldungen für Screenreader, Legende mit Farbe und Linienbreite sowie Berücksichtigung von „Bewegung reduzieren“. Alle Karteninformationen gibt es auch als Text.',
 		creditsTitle: 'Danksagung',
 		credits:
-			'Daten © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Karte © OpenStreetMap-Mitwirkende, Kacheln von OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash-Redis-Client (MIT) und MapLibre GL JS (BSD-3-Clause).',
+			'Daten © Comune di Firenze / Alia (CC BY-NC-SA 4.0). Karte © OpenStreetMap-Mitwirkende, Kacheln von OpenFreeMap. Software: SvelteKit, Svelte, Tailwind CSS, MiniSearch, Valibot, Upstash-Redis-Client (MIT) und MapLibre GL JS (BSD-3-Clause). Logo: Lilie vereinfacht nach „Firenze giglio gotico antico“ von Horemhat (Wikimedia Commons, CC BY-SA 4.0); das Logo steht unter derselben Lizenz.',
 		notAvailable: 'k. A.',
 		disclaimerTitle: 'Hinweise',
 		disclaimer: [
