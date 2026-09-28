@@ -280,18 +280,22 @@ bottom-sheet-dialog-manager dialog:focus-visible {
 	inherits: false;
 	initial-value: 0;
 }
+/*
+ * The page shrinks around the centre of the visible screen (the full-screen map,
+ * whose visible part starts at `--bleed`), so every edge recedes in proportion to
+ * the screen size: the top by 3.5% of the height, the sides by 3.5% of the width.
+ */
 .sheet-backdrop {
-	transform-origin: 50% var(--bleed);
+	transform-origin: 50% calc(var(--bleed) + 50dvh);
 	scale: calc(1 - 0.07 * var(--sheet-lift));
-	translate: 0 calc(var(--sheet-lift) * (env(safe-area-inset-top) + 0.625rem));
 	transition:
 		--sheet-lift 0.18s ease-out,
 		--sheet-dim 0.3s ease-out;
 }
 /*
  * While a sheet is open: dim the page (in-flow, so Safari shows it under its bars)
- * and, as the sheet rises, trim the full-bleed margins so the page becomes a card
- * whose rounded top edge shows below the status bar.
+ * and, as the sheet rises, trim the full-bleed margins so the page becomes a card:
+ * the visible screen, scaled down, with rounded corners.
  */
 .sheet-backdrop[data-sheet] {
 	filter: brightness(calc(1 - var(--sheet-dim) - 0.15 * var(--sheet-lift)));

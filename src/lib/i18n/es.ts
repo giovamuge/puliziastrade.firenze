@@ -157,7 +157,7 @@ export const es = {
 	},
 	reminder: {
 		title: 'Recordatorios en tu calendario',
-		subtitle: 'Un calendario que se actualiza solo cuando cambian los datos.',
+		subtitle: 'Recibe un aviso para mover el coche a tiempo.',
 		when: '¿Cuándo quieres el aviso?',
 		auto: 'Recomendado',
 		autoHint: 'La noche anterior para las limpiezas nocturnas; si no, 2 horas antes',
@@ -168,13 +168,25 @@ export const es = {
 		none: 'Sin aviso',
 		add: 'Añadir al calendario',
 		apple: 'Calendario de Apple',
-		appleHint: 'iPhone, iPad, Mac',
 		google: 'Google Calendar',
 		outlook: 'Outlook',
 		download: 'Descargar archivo .ics',
 		scopeSegment: 'Solo el tramo seleccionado',
 		scopeStreet: 'Toda la calle',
-		nextAlert: (when: string) => `Próximo aviso: ${when}`
+		nextAlert: (when: string) => `Próximo aviso: ${when}`,
+		modeTitle: '¿Qué quieres añadir?',
+		modeRepeat: 'Evento periódico',
+		modeRepeatHint: 'Se repite solo con los horarios actuales',
+		modeNext: 'Solo la próxima limpieza',
+		modeNextHint: 'Un único evento',
+		modeFeed: 'Calendario siempre actualizado',
+		modeFeedHint: 'Se actualiza solo cuando cambian los horarios',
+		repeats: (rule: string) => `Se repite: ${rule}`,
+		repeatGoogleMany: 'Esta calle tiene varios horarios: Google Calendar acepta uno por enlace, usa el archivo .ics.',
+		repeatOutlook: 'Outlook no acepta eventos periódicos desde un enlace: usa el archivo .ics.',
+		nextEvent: (when: string) => `Limpieza: ${when}`,
+		defaultAlarm: 'En Google Calendar y Outlook se usa el aviso predeterminado de tu calendario.',
+		noUpcoming: 'No hay limpiezas programadas por ahora.'
 	},
 	reviews: {
 		open: 'Verificar la limpieza',
@@ -370,12 +382,12 @@ export const es = {
 		dataTitle: 'Qué datos tratamos',
 		data: [
 			['Ubicación', 'Solo cuando tocas el botón de ubicación: las coordenadas se envían una vez al servidor para encontrar calles cercanas y luego se descartan. No se guardan, ni se almacenan en caché, ni se escriben en los registros de la aplicación.'],
-			['Informes', 'Resultado, valoración, nota opcional y horario de la señal, con calle, tramo y fecha. Son anónimos y públicos. Se muestran los últimos 50 por calle; los totales mensuales se borran tras unos 70 días. No escribas datos personales en las notas.'],
+			['Informes', 'Resultado, valoración, nota opcional y horario de la señal, con calle, tramo y fecha. Son anónimos y públicos. Se muestran los últimos 50 por calle; los totales mensuales se borran tras unos 70 días. El responsable los revisa y puede enviarlos, de forma agregada, al Ayuntamiento de Florencia o a Alia para mejorar el servicio. No escribas datos personales en las notas.'],
 			['Prevención de abusos', 'Para limitar envíos repetidos calculamos una huella anónima (hash de IP, navegador y día, con una clave secreta) que no permite obtener la IP y caduca en 3 días. La IP no se guarda.'],
 			['Registros técnicos', 'El proveedor de alojamiento (Vercel) registra datos técnicos de las solicitudes, como IP y navegador, por seguridad y funcionamiento, durante un tiempo limitado según sus políticas.']
 		] as [string, string][],
 		cookiesTitle: 'Cookies y almacenamiento local',
-		cookies: 'Solo usamos herramientas técnicas necesarias para el servicio o tus preferencias, por lo que no hace falta un banner de consentimiento. Sin cookies de análisis, perfilado ni de terceros.',
+		cookies: 'Solo usamos herramientas técnicas necesarias para el servicio o tus preferencias, por lo que no hace falta un banner de consentimiento. Las estadísticas de visitas no usan cookies; sin cookies de perfilado ni de terceros.',
 		storage: [
 			'«theme» y «locale» en el almacenamiento local: tema e idioma elegidos.',
 			'Cookie «locale» (1 año), solo si eliges un idioma: muestra la página de información en tu idioma.',
@@ -387,6 +399,8 @@ export const es = {
 			'OpenFreeMap: el navegador descarga de ellos las imágenes del mapa (ven tu IP, como cualquier sitio web).',
 			'Upstash (Redis): almacenamiento de informes y datos procesados.',
 			'Vercel: alojamiento de la aplicación.',
+			'GitHub: los informes (sin ningún dato que te identifique) se copian en un archivo privado para que el responsable los revise antes de enviarlos, de forma agregada, al Ayuntamiento de Florencia o a Alia.',
+			'Vercel Web Analytics: estadísticas agregadas y anónimas de visitas (páginas vistas, procedencia, país, tipo de dispositivo), sin cookies. Los visitantes se distinguen solo mediante un hash diario que no se conserva.',
 			'Google Calendar, Outlook y Apple Calendar: solo si añades el recordatorio; tu calendario descargará periódicamente el archivo.'
 		],
 		rightsTitle: 'Tus derechos',

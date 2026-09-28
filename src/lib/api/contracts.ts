@@ -179,3 +179,10 @@ export interface ApiErrorDto {
 /** Reminder timing for calendar feeds. */
 export const ALARM_OPTIONS = ['auto', 'evening', '120', '60', 'none'] as const;
 export type AlarmOption = (typeof ALARM_OPTIONS)[number];
+
+/**
+ * What a calendar file contains: a live feed of every sweep, the next sweep
+ * only, or one recurring event per rule.
+ */
+export const CALENDAR_MODES = ['feed', 'next', 'repeat'] as const;
+export type CalendarMode = (typeof CALENDAR_MODES)[number];

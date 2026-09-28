@@ -157,7 +157,7 @@ export const fr = {
 	},
 	reminder: {
 		title: 'Rappels dans votre agenda',
-		subtitle: 'Un agenda qui se met à jour tout seul quand les données changent.',
+		subtitle: 'Recevez un rappel pour déplacer votre voiture à temps.',
 		when: 'Quand voulez-vous être prévenu ?',
 		auto: 'Recommandé',
 		autoHint: 'La veille au soir pour les nettoyages de nuit, sinon 2 heures avant',
@@ -168,13 +168,25 @@ export const fr = {
 		none: 'Pas de rappel',
 		add: 'Ajouter à l’agenda',
 		apple: 'Calendrier Apple',
-		appleHint: 'iPhone, iPad, Mac',
 		google: 'Google Agenda',
 		outlook: 'Outlook',
 		download: 'Télécharger le fichier .ics',
 		scopeSegment: 'Seulement le tronçon sélectionné',
 		scopeStreet: 'Toute la rue',
-		nextAlert: (when: string) => `Prochain rappel : ${when}`
+		nextAlert: (when: string) => `Prochain rappel : ${when}`,
+		modeTitle: 'Que voulez-vous ajouter ?',
+		modeRepeat: 'Événement récurrent',
+		modeRepeatHint: 'Se répète tout seul avec les horaires actuels',
+		modeNext: 'Seulement le prochain passage',
+		modeNextHint: 'Un seul événement',
+		modeFeed: 'Agenda toujours à jour',
+		modeFeedHint: 'Se met à jour tout seul quand les horaires changent',
+		repeats: (rule: string) => `Se répète : ${rule}`,
+		repeatGoogleMany: 'Cette rue a plusieurs horaires : Google Agenda n’en accepte qu’un par lien, utilisez le fichier .ics.',
+		repeatOutlook: 'Outlook n’accepte pas les événements récurrents par lien : utilisez le fichier .ics.',
+		nextEvent: (when: string) => `Passage: ${when}`,
+		defaultAlarm: 'Google Agenda et Outlook utilisent le rappel par défaut de votre agenda.',
+		noUpcoming: 'Aucun passage prévu pour le moment.'
 	},
 	reviews: {
 		open: 'Vérifier le nettoyage',
@@ -370,12 +382,12 @@ export const fr = {
 		dataTitle: 'Données traitées',
 		data: [
 			['Position', 'Uniquement quand vous touchez le bouton de position : les coordonnées sont envoyées une fois au serveur pour trouver les rues proches puis supprimées. Elles ne sont ni enregistrées, ni mises en cache, ni écrites dans les journaux de l’application.'],
-			['Signalements', 'Résultat, note, commentaire facultatif et horaire du panneau, avec rue, tronçon et date. Ils sont anonymes et publics. Les 50 derniers par rue restent visibles ; les totaux mensuels sont supprimés après environ 70 jours. N’écrivez pas de données personnelles dans les commentaires.'],
+			['Signalements', 'Résultat, note, commentaire facultatif et horaire du panneau, avec rue, tronçon et date. Ils sont anonymes et publics. Les 50 derniers par rue restent visibles ; les totaux mensuels sont supprimés après environ 70 jours. Le responsable les examine et peut les transmettre, de manière agrégée, à la Ville de Florence ou à Alia pour améliorer le service. N’écrivez pas de données personnelles dans les commentaires.'],
 			['Prévention des abus', 'Pour limiter les envois répétés, nous calculons une empreinte anonyme (hachage de l’adresse IP, du navigateur et du jour, avec une clé secrète) qui ne permet pas de retrouver l’IP et expire sous 3 jours. L’adresse IP n’est pas enregistrée.'],
 			['Journaux techniques', 'L’hébergeur (Vercel) enregistre des données techniques des requêtes, comme l’adresse IP et le navigateur, pour la sécurité et le fonctionnement, pendant une durée limitée selon ses politiques.']
 		] as [string, string][],
 		cookiesTitle: 'Cookies et stockage local',
-		cookies: 'Nous n’utilisons que des outils techniques nécessaires au service ou à vos préférences : aucun bandeau de consentement n’est donc requis. Aucun cookie d’analyse, de profilage ou tiers.',
+		cookies: 'Nous n’utilisons que des outils techniques nécessaires au service ou à vos préférences : aucun bandeau de consentement n’est donc requis. Les statistiques de visite n’utilisent pas de cookies ; aucun cookie de profilage ou tiers.',
 		storage: [
 			'« theme » et « locale » dans le stockage local : thème et langue choisis.',
 			'Cookie « locale » (1 an), seulement si vous choisissez une langue : affiche la page d’infos dans votre langue.',
@@ -387,6 +399,8 @@ export const fr = {
 			'OpenFreeMap : votre navigateur y télécharge les images de la carte (ils voient votre adresse IP, comme tout site web).',
 			'Upstash (Redis) : stockage des signalements et des données traitées.',
 			'Vercel : hébergement de l’application.',
+			'GitHub : les signalements (sans aucune donnée vous identifiant) sont copiés dans une archive privée afin que le responsable les examine avant de les transmettre éventuellement, de manière agrégée, à la Ville de Florence ou à Alia.',
+			'Vercel Web Analytics : statistiques de visite agrégées et anonymes (pages vues, provenance, pays, type d’appareil), sans cookies. Les visiteurs ne sont distingués que par un hachage quotidien qui n’est pas conservé.',
 			'Google Agenda, Outlook et Calendrier Apple : seulement si vous ajoutez le rappel ; votre agenda téléchargera régulièrement le fichier.'
 		],
 		rightsTitle: 'Vos droits',

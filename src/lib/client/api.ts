@@ -1,6 +1,7 @@
 import type {
 	AlarmOption,
 	ApiErrorCode,
+	CalendarMode,
 	ApiErrorDto,
 	MapLayerDto,
 	MetaDto,
@@ -79,9 +80,10 @@ export const api = {
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify(body)
 		}),
-	calendarPath: (slug: string, options: { segment?: string | null; alarm: AlarmOption; lang: string }) => {
+	calendarPath: (slug: string, options: { segment?: string | null; alarm: AlarmOption; lang: string; mode?: CalendarMode }) => {
 		const params = new URLSearchParams({ avviso: options.alarm, lang: options.lang });
 		if (options.segment) params.set('tratto', options.segment);
+		if (options.mode && options.mode !== 'feed') params.set('modo', options.mode);
 		return `/api/calendar/${encodeURIComponent(slug)}.ics?${params}`;
 	}
 };

@@ -159,7 +159,7 @@ export const it = {
 	},
 	reminder: {
 		title: 'Promemoria nel tuo calendario',
-		subtitle: 'Un calendario che si aggiorna da solo quando cambiano i dati.',
+		subtitle: 'Ricevi un avviso per spostare l’auto in tempo.',
 		when: 'Quando vuoi l’avviso?',
 		auto: 'Consigliato',
 		autoHint: 'La sera prima per le pulizie notturne, altrimenti 2 ore prima',
@@ -170,13 +170,25 @@ export const it = {
 		none: 'Nessun avviso',
 		add: 'Aggiungi al calendario',
 		apple: 'Apple Calendar',
-		appleHint: 'iPhone, iPad, Mac',
 		google: 'Google Calendar',
 		outlook: 'Outlook',
 		download: 'Scarica file .ics',
 		scopeSegment: 'Solo il tratto selezionato',
 		scopeStreet: 'Tutta la via',
-		nextAlert: (when: string) => `Prossimo avviso: ${when}`
+		nextAlert: (when: string) => `Prossimo avviso: ${when}`,
+		modeTitle: 'Cosa vuoi aggiungere?',
+		modeRepeat: 'Evento ricorrente',
+		modeRepeatHint: 'Si ripete da solo con gli orari di oggi',
+		modeNext: 'Solo il prossimo passaggio',
+		modeNextHint: 'Un singolo evento',
+		modeFeed: 'Calendario sempre aggiornato',
+		modeFeedHint: 'Si aggiorna da solo quando cambiano gli orari',
+		repeats: (rule: string) => `Si ripete: ${rule}`,
+		repeatGoogleMany: 'Questa via ha più orari: Google Calendar ne accetta uno per link, usa il file .ics.',
+		repeatOutlook: 'Outlook non accetta eventi ricorrenti da link: usa il file .ics.',
+		nextEvent: (when: string) => `Passaggio: ${when}`,
+		defaultAlarm: 'Su Google Calendar e Outlook vale l’avviso predefinito del tuo calendario.',
+		noUpcoming: 'Nessun passaggio in programma per ora.'
 	},
 	reviews: {
 		open: 'Verifica la pulizia',
@@ -372,12 +384,12 @@ export const it = {
 		dataTitle: 'Quali dati trattiamo',
 		data: [
 			['Posizione', 'Solo quando tocchi il pulsante della posizione: le coordinate vengono inviate una volta al server per trovare le strade vicine e poi scartate. Non vengono salvate, messe in cache o scritte nei log dell’applicazione.'],
-			['Segnalazioni', 'Esito, voto, eventuale nota e orario del cartello, insieme a via, tratto e data. Sono anonime e pubbliche. Restano visibili fino alle ultime 50 per via; i totali mensili vengono cancellati dopo circa 70 giorni. Non scrivere dati personali nelle note.'],
+			['Segnalazioni', 'Esito, voto, eventuale nota e orario del cartello, insieme a via, tratto e data. Sono anonime e pubbliche. Restano visibili fino alle ultime 50 per via; i totali mensili vengono cancellati dopo circa 70 giorni. Il titolare le rivede e può inoltrarle, in forma aggregata, al Comune di Firenze o ad Alia per migliorare il servizio. Non scrivere dati personali nelle note.'],
 			['Prevenzione abusi', 'Per limitare invii ripetuti calcoliamo un’impronta anonima (hash di indirizzo IP, browser e giorno, con una chiave segreta) che non permette di risalire all’IP e scade entro 3 giorni. L’indirizzo IP non viene salvato.'],
 			['Log tecnici', 'Il fornitore di hosting (Vercel) registra dati tecnici delle richieste, come indirizzo IP e browser, per sicurezza e funzionamento, per un periodo limitato secondo le proprie policy.']
 		] as [string, string][],
 		cookiesTitle: 'Cookie e memorie locali',
-		cookies: 'Usiamo solo strumenti tecnici, necessari al funzionamento o alle tue preferenze: per questo non serve un banner di consenso. Nessun cookie di analisi, profilazione o di terze parti.',
+		cookies: 'Usiamo solo strumenti tecnici, necessari al funzionamento o alle tue preferenze: per questo non serve un banner di consenso. Le statistiche di visita non usano cookie; nessun cookie di profilazione o di terze parti.',
 		storage: [
 			'«theme» e «locale» nella memoria locale del browser: tema e lingua che hai scelto.',
 			'Cookie «locale» (1 anno), solo se scegli una lingua: serve a mostrare la pagina informativa nella tua lingua.',
@@ -389,6 +401,8 @@ export const it = {
 			'OpenFreeMap: il browser scarica da loro le immagini della mappa (vedono l’indirizzo IP, come ogni sito).',
 			'Upstash (Redis): archiviazione delle segnalazioni e dei dati elaborati.',
 			'Vercel: hosting dell’applicazione.',
+			'GitHub: le segnalazioni (senza alcun dato che ti identifichi) vengono copiate in un archivio privato per essere riviste dal titolare prima di un eventuale inoltro, in forma aggregata, al Comune di Firenze o ad Alia.',
+			'Vercel Web Analytics: statistiche aggregate e anonime sulle visite (pagine viste, provenienza, paese, tipo di dispositivo), senza cookie. I visitatori sono distinti solo tramite un hash giornaliero che non viene conservato.',
 			'Google Calendar, Outlook e Apple Calendar: solo se scegli di aggiungere il promemoria; il tuo calendario scaricherà periodicamente il file del calendario.'
 		],
 		rightsTitle: 'I tuoi diritti',

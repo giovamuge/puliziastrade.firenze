@@ -157,7 +157,7 @@ export const de = {
 	},
 	reminder: {
 		title: 'Erinnerungen in deinem Kalender',
-		subtitle: 'Ein Kalender, der sich selbst aktualisiert, wenn sich die Daten ändern.',
+		subtitle: 'Lass dich rechtzeitig erinnern, dein Auto umzuparken.',
 		when: 'Wann möchtest du erinnert werden?',
 		auto: 'Empfohlen',
 		autoHint: 'Am Vorabend bei Nachtreinigung, sonst 2 Stunden vorher',
@@ -168,13 +168,25 @@ export const de = {
 		none: 'Keine Erinnerung',
 		add: 'Zum Kalender hinzufügen',
 		apple: 'Apple Kalender',
-		appleHint: 'iPhone, iPad, Mac',
 		google: 'Google Kalender',
 		outlook: 'Outlook',
 		download: '.ics-Datei herunterladen',
 		scopeSegment: 'Nur der gewählte Abschnitt',
 		scopeStreet: 'Ganze Straße',
-		nextAlert: (when: string) => `Nächste Erinnerung: ${when}`
+		nextAlert: (when: string) => `Nächste Erinnerung: ${when}`,
+		modeTitle: 'Was möchtest du hinzufügen?',
+		modeRepeat: 'Wiederkehrender Termin',
+		modeRepeatHint: 'Wiederholt sich mit den heutigen Zeiten',
+		modeNext: 'Nur die nächste Reinigung',
+		modeNextHint: 'Ein einzelner Termin',
+		modeFeed: 'Immer aktueller Kalender',
+		modeFeedHint: 'Aktualisiert sich selbst, wenn sich die Zeiten ändern',
+		repeats: (rule: string) => `Wiederholt sich: ${rule}`,
+		repeatGoogleMany: 'Diese Straße hat mehrere Zeiten: Google Kalender nimmt eine pro Link, nutze die .ics-Datei.',
+		repeatOutlook: 'Outlook akzeptiert keine wiederkehrenden Termine per Link: nutze die .ics-Datei.',
+		nextEvent: (when: string) => `Reinigung: ${when}`,
+		defaultAlarm: 'Google Kalender und Outlook verwenden die Standard-Erinnerung deines Kalenders.',
+		noUpcoming: 'Derzeit keine Reinigung geplant.'
 	},
 	reviews: {
 		open: 'Reinigung prüfen',
@@ -370,12 +382,12 @@ export const de = {
 		dataTitle: 'Welche Daten wir verarbeiten',
 		data: [
 			['Standort', 'Nur wenn du auf die Standort-Schaltfläche tippst: Die Koordinaten werden einmal an den Server gesendet, um Straßen in der Nähe zu finden, und dann verworfen. Sie werden weder gespeichert noch zwischengespeichert noch in Anwendungsprotokolle geschrieben.'],
-			['Meldungen', 'Ergebnis, Bewertung, optionale Notiz und Uhrzeit vom Schild, mit Straße, Abschnitt und Datum. Sie sind anonym und öffentlich. Die letzten 50 pro Straße bleiben sichtbar; Monatssummen werden nach etwa 70 Tagen gelöscht. Keine persönlichen Daten in Notizen schreiben.'],
+			['Meldungen', 'Ergebnis, Bewertung, optionale Notiz und Uhrzeit vom Schild, mit Straße, Abschnitt und Datum. Sie sind anonym und öffentlich. Die letzten 50 pro Straße bleiben sichtbar; Monatssummen werden nach etwa 70 Tagen gelöscht. Der Verantwortliche prüft sie und kann sie zusammengefasst an die Stadt Florenz oder Alia weiterleiten, um den Dienst zu verbessern. Keine persönlichen Daten in Notizen schreiben.'],
 			['Missbrauchsschutz', 'Gegen wiederholte Meldungen berechnen wir einen anonymen Fingerabdruck (Hash aus IP-Adresse, Browser und Tag mit geheimem Schlüssel), aus dem sich die IP nicht ableiten lässt und der nach 3 Tagen verfällt. Die IP-Adresse wird nicht gespeichert.'],
 			['Technische Protokolle', 'Der Hosting-Anbieter (Vercel) protokolliert technische Anfragedaten wie IP-Adresse und Browser zu Sicherheits- und Betriebszwecken für begrenzte Zeit gemäß seinen Richtlinien.']
 		] as [string, string][],
 		cookiesTitle: 'Cookies und lokaler Speicher',
-		cookies: 'Wir nutzen nur technische Mittel, die für den Dienst oder deine Einstellungen nötig sind; ein Einwilligungsbanner ist daher nicht erforderlich. Keine Analyse-, Tracking- oder Drittanbieter-Cookies.',
+		cookies: 'Wir nutzen nur technische Mittel, die für den Dienst oder deine Einstellungen nötig sind; ein Einwilligungsbanner ist daher nicht erforderlich. Die Besuchsstatistik verwendet keine Cookies; keine Tracking- oder Drittanbieter-Cookies.',
 		storage: [
 			'„theme“ und „locale“ im lokalen Speicher: gewähltes Design und Sprache.',
 			'Cookie „locale“ (1 Jahr), nur wenn du eine Sprache wählst: zeigt die Infoseite in deiner Sprache.',
@@ -387,6 +399,8 @@ export const de = {
 			'OpenFreeMap: Dein Browser lädt dort die Kartenbilder (sie sehen deine IP-Adresse, wie jede Website).',
 			'Upstash (Redis): Speicherung von Meldungen und verarbeiteten Daten.',
 			'Vercel: Hosting der Anwendung.',
+			'GitHub: Meldungen (ohne Daten, die dich identifizieren) werden in ein privates Archiv kopiert, damit der Verantwortliche sie prüfen kann, bevor sie gegebenenfalls zusammengefasst an die Stadt Florenz oder Alia weitergeleitet werden.',
+			'Vercel Web Analytics: zusammengefasste, anonyme Besuchsstatistiken (Seitenaufrufe, Herkunft, Land, Gerätetyp) ohne Cookies. Besucher werden nur über einen täglichen Hash unterschieden, der nicht gespeichert wird.',
 			'Google Kalender, Outlook und Apple Kalender: nur wenn du die Erinnerung hinzufügst; dein Kalender lädt die Datei regelmäßig herunter.'
 		],
 		rightsTitle: 'Deine Rechte',

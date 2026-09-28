@@ -12,8 +12,12 @@ export interface IcsEvent {
 	description?: string;
 	location?: string;
 	url?: string;
+	/** RRULE value (without prefix) for a recurring event. */
+	rrule?: string;
 	/** Absolute alarm time in UTC, `YYYYMMDDTHHMMSSZ`. */
 	alarmAt?: string;
+	/** Alarm relative to each start, in minutes (for recurring events). */
+	alarmMinutesBefore?: number;
 	alarmText?: string;
 }
 
@@ -72,7 +76,9 @@ export class IcsCalendarBuilder {
 	constructor(
 		private readonly name: string,
 		private readonly description: string,
-		private readonly stamp: string
+		private readonly stamp: string,
+		/** false for a one-off file: no calendar name or refresh hints, so apps import the events instead of offering a new calendar. */
+		private readonly subscription = true
 	) {}
 
 	add(event: IcsEvent): this {
@@ -87,11 +93,15 @@ export class IcsCalendarBuilder {
 			'PRODID:-//puliziastrade-firenze//IT',
 			'CALSCALE:GREGORIAN',
 			'METHOD:PUBLISH',
-			`X-WR-CALNAME:${escapeText(this.name)}`,
-			`X-WR-CALDESC:${escapeText(this.description)}`,
-			'X-WR-TIMEZONE:Europe/Rome',
-			'REFRESH-INTERVAL;VALUE=DURATION:PT12H',
-			'X-PUBLISHED-TTL:PT12H',
+			...(this.subscription
+				? [
+						`X-WR-CALNAME:${escapeText(this.name)}`,
+						`X-WR-CALDESC:${escapeText(this.description)}`,
+						'X-WR-TIMEZONE:Europe/Rome',
+						'REFRESH-INTERVAL;VALUE=DURATION:PT12H',
+						'X-PUBLISHED-TTL:PT12H'
+					]
+				: []),
 			...VTIMEZONE_ROME
 		];
 		for (const e of this.events) {
@@ -108,8 +118,10 @@ export class IcsCalendarBuilder {
 			if (e.description) lines.push(`DESCRIPTION:${escapeText(e.description)}`);
 			if (e.location) lines.push(`LOCATION:${escapeText(e.location)}`);
 			if (e.url) lines.push(`URL:${e.url}`);
-			if (e.alarmAt) {
-				lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${escapeText(e.alarmText ?? e.summary)}`, `TRIGGER;VALUE=DATE-TIME:${e.alarmAt}`, 'END:VALARM');
+			if (e.rrule) lines.push(`RRULE:${e.rrule}`);
+			const trigger = e.alarmAt ? `TRIGGER;VALUE=DATE-TIME:${e.alarmAt}` : e.alarmMinutesBefore !== undefined ? `TRIGGER:-PT${e.alarmMinutesBefore}M` : null;
+			if (trigger) {
+				lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${escapeText(e.alarmText ?? e.summary)}`, trigger, 'END:VALARM');
 			}
 			lines.push('END:VEVENT');
 		}
