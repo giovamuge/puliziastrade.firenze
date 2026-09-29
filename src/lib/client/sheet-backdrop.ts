@@ -44,26 +44,44 @@ let target: HTMLElement | null = null;
 let frame = 0;
 let appliedLift = 0;
 let appliedDim = 0;
+let appliedPageDepth = 0;
+/** Last `--stack-depth` written to each sheet, so unchanged levels are not restyled. */
+const appliedDepths: number[] = [];
 
-/** A sheet is stacked while it is full screen and a sheet opened after it is open. */
-function restack(): void {
+/**
+ * Depth of each sheet in the stack: how many newer sheets cover it while it is full
+ * screen (0 otherwise). Each level recedes it one step more (`--stack-depth`), and the
+ * page one step beyond the deepest sheet, so the more sheets are open the further back
+ * everything below goes. Returns the deepest level.
+ */
+function restack(): number {
+	let deepest = 0;
 	for (let i = 0; i < hosts.length; i++) {
 		const host = hosts[i];
 		if (!host) continue;
-		let covered = false;
+		let depth = 0;
 		if (openedAt[i]! > 0 && lifts[i]! >= FULL) {
 			for (let j = 0; j < hosts.length; j++)
-				if (hosts[j] && openedAt[j]! > openedAt[i]!) covered = true;
+				if (hosts[j] && openedAt[j]! > openedAt[i]!) depth++;
 		}
-		if (covered !== host.hasAttribute("data-stacked"))
-			host.toggleAttribute("data-stacked", covered);
+		if (depth > deepest) deepest = depth;
+		if (depth !== appliedDepths[i]) {
+			appliedDepths[i] = depth;
+			host.style.setProperty("--stack-depth", String(depth));
+			host.toggleAttribute("data-stacked", depth > 0);
+		}
 	}
+	return deepest;
 }
 
 function render(): void {
 	frame = 0;
-	restack();
+	const depth = restack();
 	if (!target) return;
+	if (depth !== appliedPageDepth) {
+		appliedPageDepth = depth;
+		target.style.setProperty("--stack-depth", String(depth));
+	}
 	let lift = 0;
 	let open = 0;
 	for (let i = 0; i < lifts.length; i++) {
@@ -98,6 +116,7 @@ export function sheetSource(host: HTMLElement | null = null): SheetSource {
 	opens[slot] = 0;
 	hosts[slot] = host;
 	openedAt[slot] = 0;
+	appliedDepths[slot] = 0;
 	return {
 		lift(level) {
 			if (lifts[slot] === level) return;
@@ -114,6 +133,7 @@ export function sheetSource(host: HTMLElement | null = null): SheetSource {
 		},
 		dispose() {
 			hosts[slot]?.removeAttribute("data-stacked");
+			hosts[slot]?.style.removeProperty("--stack-depth");
 			lifts[slot] = FREE;
 			opens[slot] = 0;
 			hosts[slot] = null;
@@ -126,7 +146,7 @@ export function sheetSource(host: HTMLElement | null = null): SheetSource {
 /** Attachment for the page element that recedes behind the sheets. */
 export function sheetBackdrop(node: HTMLElement): () => void {
 	target = node;
-	appliedLift = appliedDim = 0;
+	appliedLift = appliedDim = appliedPageDepth = 0;
 	schedule();
 	return () => {
 		if (target === node) target = null;

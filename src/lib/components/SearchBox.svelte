@@ -66,6 +66,8 @@
 		query = item.name;
 		open = false;
 		active = -1;
+		// Close the keyboard: the map then frames the street for the full screen, not the half left by the keyboard.
+		input.blur();
 		void app.selectStreet(item.slug, null, prefs.m.street.selectedAnnounce);
 	}
 
@@ -180,7 +182,7 @@
 		id={listId}
 		role="listbox"
 		aria-label={prefs.m.search.listLabel}
-		class="scroll-fade absolute bottom-full z-30 mb-2 max-h-[55dvh] w-full overflow-auto glass p-1"
+		class="scroll-fade absolute bottom-full left-0 z-30 mb-2 max-h-[55dvh] w-[min(calc(100vw-1.5rem),36rem)] overflow-auto glass p-1"
 		hidden={!open || (!results.length && !error)}
 	>
 		{#if error}
@@ -205,7 +207,10 @@
 				onpointerenter={() => (active = i)}
 			>
 				<span class="min-w-0">
-					<span class="block truncate font-medium">{item.name}</span>
+					<!-- Whole name, wrapping to a second line: long names were cut on phones. -->
+					<span class="line-clamp-2 block font-medium"
+						>{item.name}</span
+					>
 					<span class="block text-xs text-muted"
 						>{prefs.m.search.segments(
 							item.segmentCount
@@ -214,7 +219,7 @@
 							: ""}</span
 					>
 				</span>
-				<span class="chip {TONE_CLASSES[status.tone]}"
+				<span class="chip shrink-0 {TONE_CLASSES[status.tone]}"
 					>{status.badge}</span
 				>
 			</li>

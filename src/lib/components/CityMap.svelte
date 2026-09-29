@@ -392,6 +392,16 @@
 	/** Keep in sync with `--under-status` in app.css (4rem). */
 	const UNDER_STATUS_PX = 64;
 
+	/**
+	 * Visible screen height (100dvh), read from the full-bleed stage. Unlike
+	 * `innerHeight` it does not shrink while the on-screen keyboard is open, which
+	 * would frame a street chosen from search for half a screen.
+	 */
+	function screenHeight(): number {
+		const stage = container?.closest<HTMLElement>(".stage");
+		return stage ? stage.clientHeight - 2 * bleed() : window.innerHeight;
+	}
+
 	function padding(): Required<PaddingOptions> {
 		const wide = wideScreen.current;
 		const edge = bleed();
@@ -404,7 +414,7 @@
 		if (!app.sheetOpen) return base;
 		return wide
 			? { ...base, left: 470 }
-			: { ...base, bottom: Math.round(window.innerHeight * 0.64) + edge };
+			: { ...base, bottom: Math.round(screenHeight() * 0.64) + edge };
 	}
 
 	function refreshSelection(animate = true, fit = true): void {
