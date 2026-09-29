@@ -11,7 +11,13 @@
 	const initial = page.data.locale;
 	const prefs = providePreferences(isLocale(initial) ? initial : undefined);
 
-	onMount(() => prefs.init());
+	onMount(() => {
+		prefs.init();
+		// iOS Safari only applies :active (the pressed feedback in app.css) when a touchstart listener exists.
+		const noop = () => {};
+		document.addEventListener('touchstart', noop, { passive: true });
+		return () => document.removeEventListener('touchstart', noop);
+	});
 	$effect(() => prefs.apply());
 </script>
 

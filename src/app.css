@@ -66,6 +66,9 @@
 	--c-tone-later: #f1efec;
 	--c-tone-later-fg: #535f67;
 
+	/* Pressed state (see base layer): darken on light surfaces, lighten on dark ones. */
+	--press: brightness(0.9);
+
 	color-scheme: light;
 }
 
@@ -96,6 +99,8 @@
 		--c-tone-later: #22282c;
 		--c-tone-later-fg: #a9b3b9;
 
+		--press: brightness(1.25);
+
 		color-scheme: dark;
 	
 	}
@@ -125,6 +130,8 @@
 	--c-tone-later: #22282c;
 	--c-tone-later-fg: #a9b3b9;
 
+	--press: brightness(1.25);
+
 	color-scheme: dark;
 	
 }
@@ -133,6 +140,19 @@
 	html {
 		-webkit-text-size-adjust: 100%;
 		text-rendering: optimizeLegibility;
+		/* Our own pressed state replaces Safari's grey tap box. */
+		-webkit-tap-highlight-color: transparent;
+	}
+	/*
+	 * Pressed feedback on everything tappable, immediate (no transition): a tone shift,
+	 * plus a slight shrink for compact controls (buttons, chips); full-width rows only
+	 * change tone. iOS applies :active only with a touchstart listener (+layout.svelte).
+	 */
+	:where(button, a[href], summary, [role='button'], label:has(> input:is([type='radio'], [type='checkbox']))):not(:disabled):active {
+		filter: var(--press);
+	}
+	:where(.btn-primary, .btn-secondary, .btn-ghost, label:has(> input[type='radio'].sr-only)):not(:disabled):active {
+		scale: 0.97;
 	}
 	body {
 		@apply bg-bg text-text font-sans antialiased;
