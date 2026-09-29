@@ -82,14 +82,21 @@ export class AppState {
 	);
 
 	private streetRequest: AbortController | null = null;
+	/**
+	 * The current street was selected by "my position" (not search, map or URL): the map
+	 * keeps the user in view instead of framing the street. Not reactive on purpose.
+	 */
+	selectedByLocate = false;
 
 	async selectStreet(
 		slug: string,
 		segment: string | null = null,
-		announce?: (name: string) => string
+		announce?: (name: string) => string,
+		byLocate = false
 	): Promise<void> {
 		this.streetRequest?.abort();
 		const controller = (this.streetRequest = new AbortController());
+		this.selectedByLocate = byLocate;
 		this.selectedSegment = segment;
 		this.unmappedTap = false;
 		if (this.selected?.slug === slug) {
@@ -192,7 +199,7 @@ export class AppState {
 			this.announce(
 				messages().locate.found(this.nearby.items.length, first.name)
 			);
-			await this.selectStreet(first.slug, first.segment);
+			await this.selectStreet(first.slug, first.segment, undefined, true);
 		} catch {
 			this.fail("failed", messages);
 		}

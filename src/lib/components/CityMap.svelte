@@ -448,7 +448,8 @@
 		if (!fit || !selected) return;
 		const group = focus >= 0 ? selected.groups[focus] : undefined;
 		const bbox = group?.bbox ?? selected.bbox;
-		if (bbox && !(app.position && !group)) {
+		// Found by "my position" without a stretch: stay centred on the user (refreshPosition).
+		if (bbox && !(app.selectedByLocate && !group)) {
 			const [w, s, e, n] = bbox;
 			map.fitBounds(
 				[
