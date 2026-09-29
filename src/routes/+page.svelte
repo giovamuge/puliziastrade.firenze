@@ -81,12 +81,11 @@
 					<SettingsMenu />
 				</div>
 			</div>
-
-			<!-- Bottom centre: search + my location -->
-			<BottomBar />
 		</div>
 	</main>
 </div>
+<!-- Bottom centre: search + my location. Outside the page, fixed: the keyboard lifts it natively. -->
+<BottomBar />
 <!-- Outside the page: sheets are neither scaled nor dimmed with it, and stay reachable while it is inert. -->
 <StreetSheet />
 <!-- Eases Safari's bottom bar tint from the sheet colour back to the map (see .bar-tint). -->

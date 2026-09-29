@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { useAppState } from '$lib/client/app-state.svelte';
+	import { wideScreen } from '$lib/client/media';
 	import { usePreferences } from '$lib/client/preferences.svelte';
 	import Icon from './Icon.svelte';
 	import FirstVisitNotice from './FirstVisitNotice.svelte';
@@ -9,16 +10,64 @@
 	const app = useAppState();
 	const prefs = usePreferences();
 	const locating = $derived(app.locateStatus === 'locating');
+
+	/**
+	 * Height of the on-screen keyboard, as the visual viewport reports it: the part of the
+	 * layout viewport it hides. The search field is focused without scrolling (SearchBox),
+	 * so the page stays put and this is the only movement: the bar rises by exactly that much.
+	 */
+	function keyboardLift(node: HTMLElement): () => void {
+		const vv = window.visualViewport;
+		if (!vv) return () => {};
+		let frame = 0;
+		const apply = (hidden: number) => {
+			node.style.setProperty('--keyboard', `${hidden}px`);
+			// The home-indicator safe area is under the keyboard now: keep only a small gap.
+			node.toggleAttribute('data-keyboard', hidden > 0);
+		};
+		const update = () => {
+			frame = 0;
+			// Only while one of the bar's fields has focus.
+			const typing = node.contains(document.activeElement);
+			apply(typing ? Math.max(0, Math.round(window.innerHeight - (vv.offsetTop + vv.height))) : 0);
+		};
+		const schedule = () => (frame ||= requestAnimationFrame(update));
+		// Focus out drops the bar back at once, without waiting for the visual viewport to report
+		// the keyboard closing (on iOS that can come late); moving to another field keeps it up.
+		const onFocusOut = (event: FocusEvent) => {
+			if (event.relatedTarget instanceof HTMLInputElement && node.contains(event.relatedTarget)) return;
+			cancelAnimationFrame(frame);
+			frame = 0;
+			apply(0);
+		};
+		vv.addEventListener('resize', schedule);
+		vv.addEventListener('scroll', schedule);
+		node.addEventListener('focusin', schedule);
+		node.addEventListener('focusout', onFocusOut);
+		update();
+		return () => {
+			cancelAnimationFrame(frame);
+			vv.removeEventListener('resize', schedule);
+			vv.removeEventListener('scroll', schedule);
+			node.removeEventListener('focusin', schedule);
+			node.removeEventListener('focusout', onFocusOut);
+		};
+	}
 </script>
 
 <!--
-	Centred on the map, at the bottom of the visible area (the page's viewport layer).
+	Fixed to the bottom of the viewport, outside the full-bleed (and scaled) page, and lifted
+	by the keyboard height while the keyboard is open (see keyboardLift).
+	Its container has no background, so Safari does not tint its toolbar from it.
+	Inert while a bottom sheet covers the page, like the page itself.
 	On tablet/desktop the street sidebar takes the full height on the left, so the
 	bar moves into the free area to its right.
 -->
 <div
+	inert={app.sheetOpen && !wideScreen.current}
+	{@attach keyboardLift}
 	class={[
-		'pointer-events-none absolute inset-x-0 bottom-0 z-40 flex flex-col items-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]',
+		'pointer-events-none fixed inset-x-0 bottom-0 z-40 flex translate-y-[calc(-1*var(--keyboard,0px))] flex-col items-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] data-keyboard:pb-3',
 		'transition-[left] duration-200 motion-reduce:transition-none',
 		app.sheetOpen && 'md:left-[calc(var(--sidebar-w)+0.75rem)]'
 	]}

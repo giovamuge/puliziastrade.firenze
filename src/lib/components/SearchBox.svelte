@@ -96,6 +96,18 @@
 		}
 	}
 
+	/**
+	 * First tap on the field: focus it ourselves without scrolling. The bar is fixed, so
+	 * the shrinking viewport already lifts it above the keyboard; Safari's own scroll into
+	 * view would only move the whole page (map, filters) for nothing. Later taps inside
+	 * the focused field keep the native behaviour (caret placement).
+	 */
+	function onTouchEnd(event: TouchEvent): void {
+		if (document.activeElement === input) return;
+		event.preventDefault();
+		input.focus({ preventScroll: true });
+	}
+
 	function clear(): void {
 		query = '';
 		results = [];
@@ -131,6 +143,7 @@
 			class="glass placeholder:text-muted focus:border-accent h-14 w-full rounded-full pl-12 text-base outline-none {query ? 'pr-11' : 'pr-4'}"
 			oninput={onInput}
 			onkeydown={onKeydown}
+			ontouchend={onTouchEnd}
 			onfocus={() => results.length && (open = true)}
 			onblur={() => setTimeout(() => (open = false), 120)}
 		/>
