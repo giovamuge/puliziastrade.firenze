@@ -21,12 +21,17 @@ export function bleed(): number {
 
 export function fullBleed(stage: HTMLElement): () => void {
 	const settle = () => {
-		amount = Number.parseFloat(getComputedStyle(stage).getPropertyValue('--bleed')) || 0;
-		if (window.scrollY !== amount) window.scrollTo({ top: amount, behavior: 'instant' });
+		amount =
+			Number.parseFloat(
+				getComputedStyle(stage).getPropertyValue("--bleed")
+			) || 0;
+		if (window.scrollY !== amount)
+			window.scrollTo({ top: amount, behavior: "instant" });
 	};
-	const isTextField = (el: EventTarget | null) => el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
+	const isTextField = (el: EventTarget | null) =>
+		el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
 	const onFocusIn = (event: FocusEvent) => {
-		if (isTextField(event.target)) stage.dataset.typing = '';
+		if (isTextField(event.target)) stage.dataset.typing = "";
 	};
 	// The keyboard scrolled the document: restore the track and the resting position.
 	const onFocusOut = (event: FocusEvent) => {
@@ -35,16 +40,16 @@ export function fullBleed(stage: HTMLElement): () => void {
 		requestAnimationFrame(settle);
 	};
 	settle();
-	window.addEventListener('resize', settle, { passive: true });
-	window.addEventListener('pageshow', settle);
-	document.addEventListener('focusin', onFocusIn);
-	document.addEventListener('focusout', onFocusOut);
+	window.addEventListener("resize", settle, { passive: true });
+	window.addEventListener("pageshow", settle);
+	document.addEventListener("focusin", onFocusIn);
+	document.addEventListener("focusout", onFocusOut);
 	return () => {
 		amount = 0;
 		delete stage.dataset.typing;
-		window.removeEventListener('resize', settle);
-		window.removeEventListener('pageshow', settle);
-		document.removeEventListener('focusin', onFocusIn);
-		document.removeEventListener('focusout', onFocusOut);
+		window.removeEventListener("resize", settle);
+		window.removeEventListener("pageshow", settle);
+		document.removeEventListener("focusin", onFocusIn);
+		document.removeEventListener("focusout", onFocusOut);
 	};
 }

@@ -1,17 +1,22 @@
 <script lang="ts">
-	import { usePreferences } from '$lib/client/preferences.svelte';
-	import PageHeader from '$lib/components/PageHeader.svelte';
-	import Seo from '$lib/components/Seo.svelte';
-	import { clampDescription } from '$lib/seo';
-	import { parseIsoDate } from '$lib/domain/civil-date';
-	import { PRIVACY_UPDATED_AT } from '$lib/site';
+	import { usePreferences } from "$lib/client/preferences.svelte";
+	import PageHeader from "$lib/components/PageHeader.svelte";
+	import Seo from "$lib/components/Seo.svelte";
+	import { clampDescription } from "$lib/seo";
+	import { parseIsoDate } from "$lib/domain/civil-date";
+	import { PRIVACY_UPDATED_AT } from "$lib/site";
 
 	let { data } = $props();
 	const prefs = usePreferences();
 	const p = $derived(prefs.m.privacy);
 </script>
 
-<Seo title={p.metaTitle} description={clampDescription(p.intro)} origin={data.origin} path="/privacy" />
+<Seo
+	title={p.metaTitle}
+	description={clampDescription(p.intro)}
+	origin={data.origin}
+	path="/privacy"
+/>
 
 <PageHeader />
 
@@ -22,9 +27,17 @@
 	</header>
 
 	<section aria-labelledby="controller" class="space-y-2">
-		<h2 id="controller" class="text-2xl font-semibold">{p.controllerTitle}</h2>
+		<h2 id="controller" class="text-2xl font-semibold">
+			{p.controllerTitle}
+		</h2>
 		{#if data.owner}
-			<p class="text-sm">{data.owner.name} · <a class="text-primary-text underline" href="mailto:{data.owner.email}">{data.owner.email}</a></p>
+			<p class="text-sm">
+				{data.owner.name} ·
+				<a
+					class="text-primary-text underline"
+					href="mailto:{data.owner.email}">{data.owner.email}</a
+				>
+			</p>
 		{:else}
 			<p class="text-sm">{p.controllerMissing}</p>
 		{/if}
@@ -32,7 +45,7 @@
 
 	<section aria-labelledby="data" class="space-y-3">
 		<h2 id="data" class="text-2xl font-semibold">{p.dataTitle}</h2>
-		<dl class="card divide-border divide-y text-sm">
+		<dl class="divide-y divide-border card text-sm">
 			{#each p.data as [title, text] (title)}
 				<div class="grid gap-1 p-4 sm:grid-cols-[10rem_1fr]">
 					<dt class="font-semibold">{title}</dt>
@@ -42,7 +55,11 @@
 		</dl>
 	</section>
 
-	<section id="cookie" aria-labelledby="cookies" class="scroll-mt-20 space-y-2">
+	<section
+		id="cookie"
+		aria-labelledby="cookies"
+		class="scroll-mt-20 space-y-2"
+	>
 		<h2 id="cookies" class="text-2xl font-semibold">{p.cookiesTitle}</h2>
 		<p class="text-sm">{p.cookies}</p>
 		<ul class="list-disc space-y-1 pl-5 text-sm">
@@ -62,5 +79,7 @@
 		<p class="text-sm">{p.rights}</p>
 	</section>
 
-	<p class="text-muted text-xs">{p.updated(prefs.f.longDate(parseIsoDate(PRIVACY_UPDATED_AT)))}</p>
+	<p class="text-xs text-muted">
+		{p.updated(prefs.f.longDate(parseIsoDate(PRIVACY_UPDATED_AT)))}
+	</p>
 </main>

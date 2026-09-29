@@ -1,0 +1,13 @@
+# Generated or vendored
+.svelte-kit
+.vercel
+build
+node_modules
+package-lock.json
+
+# Assets and docs media
+static
+docs
+
+# Local data used by the integration test
+alia_spazzamenti.json

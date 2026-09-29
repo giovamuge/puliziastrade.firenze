@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /*
  * Palette ispirata a Firenze:
@@ -11,8 +11,12 @@
  * Tutte le coppie testo/sfondo rispettano WCAG 2.2 AA (≥ 4.5:1).
  */
 @theme {
-	--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-	--font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+	--font-sans:
+		ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
+	--font-serif:
+		"Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+		Georgia, serif;
 
 	--color-bg: var(--c-bg);
 	--color-surface: var(--c-surface);
@@ -74,7 +78,7 @@
 
 /* Dark tokens: follow the system unless the user forced light; or forced dark. */
 @media (prefers-color-scheme: dark) {
-	:root:not([data-theme='light']) {
+	:root:not([data-theme="light"]) {
 		--c-bg: #121517;
 		--c-surface: #1b2024;
 		--c-surface-2: #242a2f;
@@ -102,11 +106,10 @@
 		--press: brightness(1.25);
 
 		color-scheme: dark;
-	
 	}
 }
-:root[data-theme='dark'] {
-		--c-bg: #121517;
+:root[data-theme="dark"] {
+	--c-bg: #121517;
 	--c-surface: #1b2024;
 	--c-surface-2: #242a2f;
 	--c-border: #353d44;
@@ -133,7 +136,6 @@
 	--press: brightness(1.25);
 
 	color-scheme: dark;
-	
 }
 
 @layer base {
@@ -148,14 +150,25 @@
 	 * plus a slight shrink for compact controls (buttons, chips); full-width rows only
 	 * change tone. iOS applies :active only with a touchstart listener (+layout.svelte).
 	 */
-	:where(button, a[href], summary, [role='button'], label:has(> input:is([type='radio'], [type='checkbox']))):not(:disabled):active {
+	:where(
+			button,
+			a[href],
+			summary,
+			[role="button"],
+			label:has(> input:is([type="radio"], [type="checkbox"]))
+		):not(:disabled):active {
 		filter: var(--press);
 	}
-	:where(.btn-primary, .btn-secondary, .btn-ghost, label:has(> input[type='radio'].sr-only)):not(:disabled):active {
+	:where(
+			.btn-primary,
+			.btn-secondary,
+			.btn-ghost,
+			label:has(> input[type="radio"].sr-only)
+		):not(:disabled):active {
 		scale: 0.97;
 	}
 	body {
-		@apply bg-bg text-text font-sans antialiased;
+		@apply bg-bg font-sans text-text antialiased;
 	}
 	h1,
 	h2,
@@ -186,7 +199,7 @@
 }
 
 @utility card {
-	@apply bg-surface border-border rounded-2xl border;
+	@apply rounded-2xl border border-border bg-surface;
 }
 @utility btn {
 	@apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
@@ -195,13 +208,13 @@
 	@apply btn bg-primary text-on-primary hover:bg-primary-hover;
 }
 @utility btn-secondary {
-	@apply btn bg-surface border-border text-text hover:bg-surface-2 border;
+	@apply btn border border-border bg-surface text-text hover:bg-surface-2;
 }
 @utility btn-ghost {
 	@apply btn text-text hover:bg-surface-2;
 }
 @utility glass {
-	@apply bg-surface/95 border-border rounded-2xl border shadow-lg backdrop-blur;
+	@apply rounded-2xl border border-border bg-surface/95 shadow-lg backdrop-blur;
 }
 @utility chip {
 	@apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap;
@@ -215,11 +228,15 @@
 .maplibregl-ctrl-group button + button {
 	border-top-color: var(--c-border) !important;
 }
-:root[data-resolved-theme='dark'] .maplibregl-ctrl-icon {
+:root[data-resolved-theme="dark"] .maplibregl-ctrl-icon {
 	filter: invert(1);
 }
 .maplibregl-ctrl-attrib {
-	background: color-mix(in oklab, var(--c-surface) 85%, transparent) !important;
+	background: color-mix(
+		in oklab,
+		var(--c-surface) 85%,
+		transparent
+	) !important;
 	color: var(--c-muted);
 }
 .maplibregl-ctrl-attrib a {
@@ -291,7 +308,7 @@ bottom-sheet::part(content) {
  * there instead of skipping it and dismissing the sheet; closing takes a second swipe.
  * The snap area is the ::before of the slotted snap element (see pure-web-bottom-sheet).
  */
-bottom-sheet > [slot='snap'].initial::before {
+bottom-sheet > [slot="snap"].initial::before {
 	scroll-snap-stop: always;
 }
 /*
@@ -319,12 +336,12 @@ bottom-sheet-dialog-manager dialog:focus-visible {
  * inherit, so updates only restyle this element and the change stays on the compositor.
  */
 @property --sheet-lift {
-	syntax: '<number>';
+	syntax: "<number>";
 	inherits: false;
 	initial-value: 0;
 }
 @property --sheet-dim {
-	syntax: '<number>';
+	syntax: "<number>";
 	inherits: false;
 	initial-value: 0;
 }
@@ -370,7 +387,7 @@ bottom-sheet-dialog-manager dialog {
  */
 /* Registered so its computed value resolves to px (read by full-bleed.ts). */
 @property --bleed {
-	syntax: '<length>';
+	syntax: "<length>";
 	inherits: true;
 	initial-value: 0px;
 }

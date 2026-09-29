@@ -1,4 +1,4 @@
-import { daysFromCivil } from './civil-date';
+import { daysFromCivil } from "./civil-date";
 
 /**
  * Wall-clock time in Florence, independent of the device/server time zone.
@@ -12,25 +12,28 @@ export interface RomeInstant {
 	minute: number;
 }
 
-export const TIME_ZONE = 'Europe/Rome';
+export const TIME_ZONE = "Europe/Rome";
 
 let formatter: Intl.DateTimeFormat | undefined;
 
 function getFormatter(): Intl.DateTimeFormat {
-	formatter ??= new Intl.DateTimeFormat('en-GB', {
+	formatter ??= new Intl.DateTimeFormat("en-GB", {
 		timeZone: TIME_ZONE,
-		year: 'numeric',
-		month: 'numeric',
-		day: 'numeric',
-		hour: 'numeric',
-		minute: 'numeric',
-		hourCycle: 'h23'
+		year: "numeric",
+		month: "numeric",
+		day: "numeric",
+		hour: "numeric",
+		minute: "numeric",
+		hourCycle: "h23",
 	});
 	return formatter;
 }
 
 /** Writes the Europe/Rome wall time of `epochMs` into `out` and returns it. */
-export function readRomeInstant(epochMs: number, out: RomeInstant = { day: 0, minute: 0 }): RomeInstant {
+export function readRomeInstant(
+	epochMs: number,
+	out: RomeInstant = { day: 0, minute: 0 }
+): RomeInstant {
 	let year = 0;
 	let month = 0;
 	let day = 0;
@@ -38,19 +41,19 @@ export function readRomeInstant(epochMs: number, out: RomeInstant = { day: 0, mi
 	let minute = 0;
 	for (const part of getFormatter().formatToParts(epochMs)) {
 		switch (part.type) {
-			case 'year':
+			case "year":
 				year = Number(part.value);
 				break;
-			case 'month':
+			case "month":
 				month = Number(part.value);
 				break;
-			case 'day':
+			case "day":
 				day = Number(part.value);
 				break;
-			case 'hour':
+			case "hour":
 				hour = Number(part.value);
 				break;
-			case 'minute':
+			case "minute":
 				minute = Number(part.value);
 				break;
 		}
@@ -73,7 +76,8 @@ export function romeLocalToEpochMs(day: number, minute: number): number {
 	let guess = asIfUtc - 60 * MS_PER_MINUTE; // CET
 	for (let i = 0; i < 2; i++) {
 		readRomeInstant(guess, probe);
-		const offset = probe.day * MS_PER_DAY + probe.minute * MS_PER_MINUTE - guess;
+		const offset =
+			probe.day * MS_PER_DAY + probe.minute * MS_PER_MINUTE - guess;
 		guess = asIfUtc - offset;
 	}
 	return guess;

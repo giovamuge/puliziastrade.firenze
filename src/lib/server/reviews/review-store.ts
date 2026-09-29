@@ -1,5 +1,9 @@
-import type { Redis } from '@upstash/redis';
-import { REVIEW_OUTCOMES, type ReviewAggregateDto, type ReviewDto } from '$lib/api/contracts';
+import type { Redis } from "@upstash/redis";
+import {
+	REVIEW_OUTCOMES,
+	type ReviewAggregateDto,
+	type ReviewDto,
+} from "$lib/api/contracts";
 
 /** Persistence port for citizen verifications. */
 export interface ReviewStore {
@@ -24,9 +28,18 @@ interface PackedAggregate {
 	sm?: number;
 }
 
-const emptyPacked = (): PackedAggregate => ({ o: [0, 0, 0, 0], rs: 0, rn: 0, l: null, sm: 0 });
+const emptyPacked = (): PackedAggregate => ({
+	o: [0, 0, 0, 0],
+	rs: 0,
+	rn: 0,
+	l: null,
+	sm: 0,
+});
 
-function mergePacked(into: PackedAggregate, from: PackedAggregate): PackedAggregate {
+function mergePacked(
+	into: PackedAggregate,
+	from: PackedAggregate
+): PackedAggregate {
 	for (let i = 0; i < 4; i++) into.o[i] = (into.o[i] ?? 0) + (from.o[i] ?? 0);
 	into.rs += from.rs;
 	into.rn += from.rn;
@@ -38,10 +51,15 @@ function mergePacked(into: PackedAggregate, from: PackedAggregate): PackedAggreg
 function unpack(p: PackedAggregate): ReviewAggregateDto {
 	return {
 		count: p.o.reduce((a, b) => a + b, 0),
-		outcomes: { clean: p.o[0], partial: p.o[1], dirty: p.o[2], skipped: p.o[3] },
+		outcomes: {
+			clean: p.o[0],
+			partial: p.o[1],
+			dirty: p.o[2],
+			skipped: p.o[3],
+		},
 		ratingAverage: p.rn > 0 ? Math.round((p.rs / p.rn) * 10) / 10 : null,
 		lastDate: p.l,
-		signMismatch: p.sm ?? 0
+		signMismatch: p.sm ?? 0,
 	};
 }
 
@@ -60,7 +78,9 @@ function packReview(r: ReviewDto): PackedAggregate {
 const monthKey = (date: Date): string => date.toISOString().slice(0, 7);
 
 function recentMonths(now = new Date()): [string, string] {
-	const previous = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15));
+	const previous = new Date(
+		Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15)
+	);
 	return [monthKey(now), monthKey(previous)];
 }
 
@@ -75,7 +95,10 @@ export class RedisReviewStore implements ReviewStore {
 	async add(review: ReviewDto): Promise<void> {
 		const month = KEY_MONTH(monthKey(new Date()));
 		const current = await this.redis.hget<string>(month, review.street);
-		const merged = mergePacked(current ? (JSON.parse(current) as PackedAggregate) : emptyPacked(), packReview(review));
+		const merged = mergePacked(
+			current ? (JSON.parse(current) as PackedAggregate) : emptyPacked(),
+			packReview(review)
+		);
 		await this.redis
 			.pipeline()
 			.lpush(KEY_LIST(review.street), JSON.stringify(review))
@@ -86,38 +109,67 @@ export class RedisReviewStore implements ReviewStore {
 	}
 
 	async list(street: string, limit: number): Promise<ReviewDto[]> {
-		const raw = await this.redis.lrange<string>(KEY_LIST(street), 0, limit - 1);
+		const raw = await this.redis.lrange<string>(
+			KEY_LIST(street),
+			0,
+			limit - 1
+		);
 		return raw.map((r) => JSON.parse(r) as ReviewDto);
 	}
 
 	async aggregate(street: string): Promise<ReviewAggregateDto> {
 		const [a, b] = recentMonths();
-		const [x, y] = await Promise.all([this.redis.hget<string>(KEY_MONTH(a), street), this.redis.hget<string>(KEY_MONTH(b), street)]);
+		const [x, y] = await Promise.all([
+			this.redis.hget<string>(KEY_MONTH(a), street),
+			this.redis.hget<string>(KEY_MONTH(b), street),
+		]);
 		const merged = emptyPacked();
-		for (const v of [x, y]) if (v) mergePacked(merged, JSON.parse(v) as PackedAggregate);
+		for (const v of [x, y])
+			if (v) mergePacked(merged, JSON.parse(v) as PackedAggregate);
 		return unpack(merged);
 	}
 
 	async summary(): Promise<Record<string, ReviewAggregateDto>> {
 		const months = recentMonths();
-		const hashes = await Promise.all(months.map((m) => this.redis.hgetall<Record<string, string>>(KEY_MONTH(m))));
+		const hashes = await Promise.all(
+			months.map((m) =>
+				this.redis.hgetall<Record<string, string>>(KEY_MONTH(m))
+			)
+		);
 		const merged = new Map<string, PackedAggregate>();
 		for (const hash of hashes) {
 			for (const [street, value] of Object.entries(hash ?? {})) {
-				const packed = typeof value === 'string' ? (JSON.parse(value) as PackedAggregate) : (value as PackedAggregate);
-				merged.set(street, mergePacked(merged.get(street) ?? emptyPacked(), packed));
+				const packed =
+					typeof value === "string"
+						? (JSON.parse(value) as PackedAggregate)
+						: (value as PackedAggregate);
+				merged.set(
+					street,
+					mergePacked(merged.get(street) ?? emptyPacked(), packed)
+				);
 			}
 		}
-		return Object.fromEntries([...merged].map(([street, p]) => [street, unpack(p)]));
+		return Object.fromEntries(
+			[...merged].map(([street, p]) => [street, unpack(p)])
+		);
 	}
 
 	async claimOnce(key: string, ttlSeconds: number): Promise<boolean> {
-		return (await this.redis.set(`rv:claim:${key}`, '1', { nx: true, ex: ttlSeconds })) === 'OK';
+		return (
+			(await this.redis.set(`rv:claim:${key}`, "1", {
+				nx: true,
+				ex: ttlSeconds,
+			})) === "OK"
+		);
 	}
 
 	async hit(key: string, windowSeconds: number): Promise<number> {
 		const k = `rv:rate:${key}`;
-		const [count] = await this.redis.pipeline().incr(k).expire(k, windowSeconds, 'NX').exec<[number, number]>();
+		const [count] = await this.redis
+			.pipeline()
+			.incr(k)
+			.expire(k, windowSeconds, "NX")
+			.exec<[number, number]>();
 		return count;
 	}
 }
@@ -129,7 +181,10 @@ export class RedisReviewStore implements ReviewStore {
 export class MemoryReviewStore implements ReviewStore {
 	private readonly reviews = new Map<string, ReviewDto[]>();
 	private readonly claims = new Map<string, number>();
-	private readonly counters = new Map<string, { count: number; until: number }>();
+	private readonly counters = new Map<
+		string,
+		{ count: number; until: number }
+	>();
 
 	async add(review: ReviewDto): Promise<void> {
 		const list = this.reviews.get(review.street) ?? [];
@@ -140,11 +195,16 @@ export class MemoryReviewStore implements ReviewStore {
 		return (this.reviews.get(street) ?? []).slice(0, limit);
 	}
 	async aggregate(street: string): Promise<ReviewAggregateDto> {
-		return unpack((this.reviews.get(street) ?? []).map(packReview).reduce(mergePacked, emptyPacked()));
+		return unpack(
+			(this.reviews.get(street) ?? [])
+				.map(packReview)
+				.reduce(mergePacked, emptyPacked())
+		);
 	}
 	async summary(): Promise<Record<string, ReviewAggregateDto>> {
 		const out: Record<string, ReviewAggregateDto> = {};
-		for (const street of this.reviews.keys()) out[street] = await this.aggregate(street);
+		for (const street of this.reviews.keys())
+			out[street] = await this.aggregate(street);
 		return out;
 	}
 	async claimOnce(key: string, ttlSeconds: number): Promise<boolean> {
@@ -157,7 +217,10 @@ export class MemoryReviewStore implements ReviewStore {
 		const now = Date.now();
 		const c = this.counters.get(key);
 		if (!c || c.until < now) {
-			this.counters.set(key, { count: 1, until: now + windowSeconds * 1000 });
+			this.counters.set(key, {
+				count: 1,
+				until: now + windowSeconds * 1000,
+			});
 			return 1;
 		}
 		return ++c.count;

@@ -1,5 +1,8 @@
-import type { Redis } from '@upstash/redis';
-import { SNAPSHOT_SCHEMA_VERSION, type DatasetSnapshot } from '$lib/domain/snapshot';
+import type { Redis } from "@upstash/redis";
+import {
+	SNAPSHOT_SCHEMA_VERSION,
+	type DatasetSnapshot,
+} from "$lib/domain/snapshot";
 
 /** Small record used to check freshness across instances without downloading the snapshot. */
 export interface SnapshotHead {
@@ -26,7 +29,7 @@ export function headOf(snapshot: DatasetSnapshot): SnapshotHead {
 		version: snapshot.version,
 		refreshedDay: snapshot.refreshedDay,
 		etag: snapshot.source.fileEtag,
-		lastModified: snapshot.source.fileLastModified
+		lastModified: snapshot.source.fileLastModified,
 	};
 }
 
@@ -47,7 +50,9 @@ export class RedisSnapshotStore implements SnapshotStore {
 		const raw = await this.redis.get<string>(KEY_SNAPSHOT);
 		if (!raw) return null;
 		const snapshot = JSON.parse(raw) as DatasetSnapshot;
-		return snapshot.schemaVersion === SNAPSHOT_SCHEMA_VERSION ? snapshot : null;
+		return snapshot.schemaVersion === SNAPSHOT_SCHEMA_VERSION
+			? snapshot
+			: null;
 	}
 
 	async write(snapshot: DatasetSnapshot): Promise<void> {
@@ -61,7 +66,12 @@ export class RedisSnapshotStore implements SnapshotStore {
 	}
 
 	async tryLock(ttlSeconds: number): Promise<boolean> {
-		return (await this.redis.set(KEY_LOCK, '1', { nx: true, ex: ttlSeconds })) === 'OK';
+		return (
+			(await this.redis.set(KEY_LOCK, "1", {
+				nx: true,
+				ex: ttlSeconds,
+			})) === "OK"
+		);
 	}
 
 	async unlock(): Promise<void> {

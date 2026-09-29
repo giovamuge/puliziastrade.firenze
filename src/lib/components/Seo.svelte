@@ -1,6 +1,11 @@
 <script lang="ts">
-	import { usePreferences } from '$lib/client/preferences.svelte';
-	import { OG_IMAGE, SITE_NAME, serializeJsonLd, type JsonLd } from '$lib/seo';
+	import { usePreferences } from "$lib/client/preferences.svelte";
+	import {
+		OG_IMAGE,
+		SITE_NAME,
+		serializeJsonLd,
+		type JsonLd,
+	} from "$lib/seo";
 
 	/**
 	 * Per-page head tags: title, description, canonical URL, Open Graph /
@@ -12,15 +17,15 @@
 		description,
 		origin,
 		path,
-		type = 'website',
+		type = "website",
 		jsonLd,
-		noindex = false
+		noindex = false,
 	}: {
 		title: string;
 		description: string;
 		origin: string;
 		path: string;
-		type?: 'website' | 'article';
+		type?: "website" | "article";
 		jsonLd?: JsonLd | JsonLd[];
 		noindex?: boolean;
 	} = $props();
@@ -28,13 +33,20 @@
 	const prefs = usePreferences();
 	const url = $derived(origin + path);
 	const image = $derived(origin + OG_IMAGE.path);
-	const ogLocale = $derived(`${prefs.locale}_${prefs.locale === 'en' ? 'GB' : prefs.locale.toUpperCase()}`);
+	const ogLocale = $derived(
+		`${prefs.locale}_${prefs.locale === "en" ? "GB" : prefs.locale.toUpperCase()}`
+	);
 </script>
 
 <svelte:head>
 	<title>{title}</title>
 	<meta name="description" content={description} />
-	<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
+	<meta
+		name="robots"
+		content={noindex
+			? "noindex, follow"
+			: "index, follow, max-image-preview:large, max-snippet:-1"}
+	/>
 	<link rel="canonical" href={url} />
 
 	<meta property="og:type" content={type} />

@@ -4,8 +4,8 @@
  * midnight. Relative wording ("oggi", "tra 3 giorni") is computed on the
  * client from its own clock, so CDN-cached responses never go stale in tone.
  */
-import type { SourceMetadata } from '$lib/domain/snapshot';
-import type { Messages } from '$lib/i18n/it';
+import type { SourceMetadata } from "$lib/domain/snapshot";
+import type { Messages } from "$lib/i18n/it";
 
 export interface CleaningWindowDto {
 	date: string;
@@ -124,13 +124,24 @@ export interface MetaDto {
 	version: string;
 	refreshedAt: string;
 	source: SourceMetadata;
-	counts: { streets: number; segments: number; features: number; rules: number; issues: number };
+	counts: {
+		streets: number;
+		segments: number;
+		features: number;
+		rules: number;
+		issues: number;
+	};
 	/** Segment-sweeps per weekday (Mon..Sun) × band (night, morning, afternoon), averaged per month. */
 	weekdayBand: number[][];
 	reviewsEnabled: boolean;
 }
 
-export const REVIEW_OUTCOMES = ['clean', 'partial', 'dirty', 'skipped'] as const;
+export const REVIEW_OUTCOMES = [
+	"clean",
+	"partial",
+	"dirty",
+	"skipped",
+] as const;
 export type ReviewOutcome = (typeof REVIEW_OUTCOMES)[number];
 
 export interface ReviewDto {
@@ -168,7 +179,7 @@ export interface ReviewSummaryResponse {
 	streets: Record<string, ReviewAggregateDto>;
 }
 
-export type ApiErrorCode = keyof Messages['errors'];
+export type ApiErrorCode = keyof Messages["errors"];
 
 export interface ApiErrorDto {
 	code: ApiErrorCode;
@@ -177,12 +188,12 @@ export interface ApiErrorDto {
 }
 
 /** Reminder timing for calendar feeds. */
-export const ALARM_OPTIONS = ['auto', 'evening', '120', '60', 'none'] as const;
+export const ALARM_OPTIONS = ["auto", "evening", "120", "60", "none"] as const;
 export type AlarmOption = (typeof ALARM_OPTIONS)[number];
 
 /**
  * What a calendar file contains: a live feed of every sweep, the next sweep
  * only, or one recurring event per rule.
  */
-export const CALENDAR_MODES = ['feed', 'next', 'repeat'] as const;
+export const CALENDAR_MODES = ["feed", "next", "repeat"] as const;
 export type CalendarMode = (typeof CALENDAR_MODES)[number];

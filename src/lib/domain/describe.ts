@@ -1,5 +1,5 @@
-import type { Weekday } from './civil-date';
-import type { WeekKind } from './schedule';
+import type { Weekday } from "./civil-date";
+import type { WeekKind } from "./schedule";
 
 /** A single recurrence rule in structured form. */
 export interface RuleLike {
@@ -25,7 +25,13 @@ export function groupRules(rules: readonly RuleLike[]): RuleGroup[] {
 		const group = groups.get(key);
 		if (group) {
 			if (!group.kinds.includes(r.kind)) group.kinds.push(r.kind);
-		} else groups.set(key, { weekday: r.weekday, kinds: [r.kind], from: r.from, to: r.to });
+		} else
+			groups.set(key, {
+				weekday: r.weekday,
+				kinds: [r.kind],
+				from: r.from,
+				to: r.to,
+			});
 	}
 	return [...groups.values()]
 		.map((g) => ({ ...g, kinds: g.kinds.sort((a, b) => a - b) }))

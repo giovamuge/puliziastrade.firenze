@@ -52,9 +52,11 @@ function restack(): void {
 		if (!host) continue;
 		let covered = false;
 		if (openedAt[i]! > 0 && lifts[i]! >= FULL) {
-			for (let j = 0; j < hosts.length; j++) if (hosts[j] && openedAt[j]! > openedAt[i]!) covered = true;
+			for (let j = 0; j < hosts.length; j++)
+				if (hosts[j] && openedAt[j]! > openedAt[i]!) covered = true;
 		}
-		if (covered !== host.hasAttribute('data-stacked')) host.toggleAttribute('data-stacked', covered);
+		if (covered !== host.hasAttribute("data-stacked"))
+			host.toggleAttribute("data-stacked", covered);
 	}
 }
 
@@ -71,13 +73,16 @@ function render(): void {
 	const dim = 1 - (1 - DIM_STEP) ** open;
 	if (lift !== appliedLift) {
 		appliedLift = lift;
-		target.style.setProperty('--sheet-lift', lift === 0 ? '0' : lift.toFixed(3));
+		target.style.setProperty(
+			"--sheet-lift",
+			lift === 0 ? "0" : lift.toFixed(3)
+		);
 	}
 	if (dim !== appliedDim) {
 		appliedDim = dim;
-		target.style.setProperty('--sheet-dim', dim.toFixed(3));
+		target.style.setProperty("--sheet-dim", dim.toFixed(3));
 	}
-	target.toggleAttribute('data-sheet', open > 0 || lift > 0);
+	target.toggleAttribute("data-sheet", open > 0 || lift > 0);
 	// Modal behaviour for the non-modal sheet dialogs: the page is out of reach while one is open.
 	target.inert = open > 0;
 }
@@ -108,13 +113,13 @@ export function sheetSource(host: HTMLElement | null = null): SheetSource {
 			schedule();
 		},
 		dispose() {
-			hosts[slot]?.removeAttribute('data-stacked');
+			hosts[slot]?.removeAttribute("data-stacked");
 			lifts[slot] = FREE;
 			opens[slot] = 0;
 			hosts[slot] = null;
 			openedAt[slot] = 0;
 			schedule();
-		}
+		},
 	};
 }
 

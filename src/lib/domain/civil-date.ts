@@ -12,7 +12,11 @@
 /** Monday = 0 … Sunday = 6 (ISO order, the one used by the dataset). */
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export function daysFromCivil(year: number, month: number, day: number): number {
+export function daysFromCivil(
+	year: number,
+	month: number,
+	day: number
+): number {
 	const y = month <= 2 ? year - 1 : year;
 	const era = Math.floor(y / 400);
 	const yoe = y - era * 400;
@@ -30,7 +34,13 @@ export function civilFromDays(dayNumber: number): number {
 	const z = dayNumber + 719468;
 	const era = Math.floor(z / 146097);
 	const doe = z - era * 146097;
-	const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
+	const yoe = Math.floor(
+		(doe -
+			Math.floor(doe / 1460) +
+			Math.floor(doe / 36524) -
+			Math.floor(doe / 146096)) /
+			365
+	);
 	const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
 	const mp = Math.floor((5 * doy + 2) / 153);
 	const day = doy - Math.floor((153 * mp + 2) / 5) + 1;
@@ -39,8 +49,10 @@ export function civilFromDays(dayNumber: number): number {
 	return year * 10000 + month * 100 + day;
 }
 
-export const packedYear = (packed: number): number => Math.floor(packed / 10000);
-export const packedMonth = (packed: number): number => Math.floor(packed / 100) % 100;
+export const packedYear = (packed: number): number =>
+	Math.floor(packed / 10000);
+export const packedMonth = (packed: number): number =>
+	Math.floor(packed / 100) % 100;
 export const packedDay = (packed: number): number => packed % 100;
 
 export function dayOfMonth(dayNumber: number): number {

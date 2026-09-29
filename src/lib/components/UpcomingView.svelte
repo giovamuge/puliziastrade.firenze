@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { useAppState } from '$lib/client/app-state.svelte';
-	import { relativeDay } from '$lib/client/format';
-	import { usePreferences } from '$lib/client/preferences.svelte';
-	import { useStreetModel } from '$lib/client/street-model.svelte';
-	import { parseIsoDate } from '$lib/domain/civil-date';
+	import { useAppState } from "$lib/client/app-state.svelte";
+	import { relativeDay } from "$lib/client/format";
+	import { usePreferences } from "$lib/client/preferences.svelte";
+	import { useStreetModel } from "$lib/client/street-model.svelte";
+	import { parseIsoDate } from "$lib/domain/civil-date";
 
 	/** Every sweep in the next two months for the focused stretch (or the whole street). */
 	const app = useAppState();
@@ -13,20 +13,29 @@
 
 <div class="pt-1">
 	{#if model.focusUpcoming.length}
-		<ol class="card divide-border divide-y">
+		<ol class="divide-y divide-border card">
 			{#each model.focusUpcoming as o (o.date + o.from)}
 				{@const day = parseIsoDate(o.date)}
 				<li class="flex items-center justify-between gap-3 px-3 py-2.5">
 					<span class="min-w-0">
-						<span class="block font-medium">{prefs.f.longDate(day, true)}</span>
+						<span class="block font-medium"
+							>{prefs.f.longDate(day, true)}</span
+						>
 						<!-- The stretch only when none is chosen: otherwise every row would repeat the header. -->
-						<span class="text-muted block text-sm">{prefs.f.timeWindow(o.from, o.to)}{model.focus < 0 && model.multiGroup ? ` · ${model.scopeOf(o)}` : ''}</span>
+						<span class="block text-sm text-muted"
+							>{prefs.f.timeWindow(o.from, o.to)}{model.focus <
+								0 && model.multiGroup
+								? ` · ${model.scopeOf(o)}`
+								: ""}</span
+						>
 					</span>
-					<span class="text-muted text-sm whitespace-nowrap">{relativeDay(day, app.clock.now.day, prefs.f)}</span>
+					<span class="text-sm whitespace-nowrap text-muted"
+						>{relativeDay(day, app.clock.now.day, prefs.f)}</span
+					>
 				</li>
 			{/each}
 		</ol>
 	{:else}
-		<p class="text-muted text-sm">{prefs.m.street.noUpcoming}</p>
+		<p class="text-sm text-muted">{prefs.m.street.noUpcoming}</p>
 	{/if}
 </div>

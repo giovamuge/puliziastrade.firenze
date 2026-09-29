@@ -1,4 +1,4 @@
-import { readRomeInstant, type RomeInstant } from '$lib/domain/rome-clock';
+import { readRomeInstant, type RomeInstant } from "$lib/domain/rome-clock";
 
 const TICK_MS = 30_000;
 
@@ -23,12 +23,13 @@ export class RomeClock {
 
 	start(): () => void {
 		this.timer ??= setInterval(this.refresh, TICK_MS);
-		const onVisible = () => document.visibilityState === 'visible' && this.refresh();
-		document.addEventListener('visibilitychange', onVisible);
+		const onVisible = () =>
+			document.visibilityState === "visible" && this.refresh();
+		document.addEventListener("visibilitychange", onVisible);
 		return () => {
 			clearInterval(this.timer);
 			this.timer = undefined;
-			document.removeEventListener('visibilitychange', onVisible);
+			document.removeEventListener("visibilitychange", onVisible);
 		};
 	}
 }

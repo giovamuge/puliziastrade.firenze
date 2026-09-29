@@ -1,14 +1,14 @@
-import * as v from 'valibot';
+import * as v from "valibot";
 
 /** Runtime contracts for the upstream CKAN-like API and GeoJSON export. */
 
-const optionalString = v.optional(v.nullable(v.string()), '');
+const optionalString = v.optional(v.nullable(v.string()), "");
 
 export const CkanResourceSchema = v.object({
 	name: optionalString,
 	format: optionalString,
 	url: v.string(),
-	metadata_modified: optionalString
+	metadata_modified: optionalString,
 });
 
 export const CkanPackageSchema = v.object({
@@ -31,19 +31,27 @@ export const CkanPackageSchema = v.object({
 		url: optionalString,
 		url_xml: optionalString,
 		data_theme: v.optional(v.array(v.string()), []),
-		tags: v.optional(v.array(v.object({ display_name: optionalString, title: optionalString })), []),
-		resources: v.array(CkanResourceSchema)
-	})
+		tags: v.optional(
+			v.array(
+				v.object({
+					display_name: optionalString,
+					title: optionalString,
+				})
+			),
+			[]
+		),
+		resources: v.array(CkanResourceSchema),
+	}),
 });
 export type CkanPackage = v.InferOutput<typeof CkanPackageSchema>;
 
 export const SweepingFeatureSchema = v.object({
-	type: v.literal('Feature'),
+	type: v.literal("Feature"),
 	id: v.union([v.string(), v.number()]),
 	geometry_name: v.optional(v.string()),
 	geometry: v.object({
-		type: v.literal('LineString'),
-		coordinates: v.array(v.tuple([v.number(), v.number()]))
+		type: v.literal("LineString"),
+		coordinates: v.array(v.tuple([v.number(), v.number()])),
 	}),
 	properties: v.object({
 		cod_arco: v.union([v.string(), v.number()]),
@@ -51,8 +59,8 @@ export const SweepingFeatureSchema = v.object({
 		settimana: v.string(),
 		giorno: v.string(),
 		ora_da: v.string(),
-		ora_a: v.string()
-	})
+		ora_a: v.string(),
+	}),
 });
 export type SweepingFeature = v.InferOutput<typeof SweepingFeatureSchema>;
 
@@ -61,10 +69,18 @@ export type SweepingFeature = v.InferOutput<typeof SweepingFeatureSchema>;
  * transform so a single malformed record does not reject the whole file.
  */
 export const SweepingCollectionSchema = v.object({
-	type: v.literal('FeatureCollection'),
+	type: v.literal("FeatureCollection"),
 	features: v.array(v.unknown()),
 	totalFeatures: v.optional(v.number()),
 	timeStamp: v.optional(v.string()),
-	crs: v.optional(v.nullable(v.object({ properties: v.optional(v.object({ name: v.optional(v.string()) })) })))
+	crs: v.optional(
+		v.nullable(
+			v.object({
+				properties: v.optional(
+					v.object({ name: v.optional(v.string()) })
+				),
+			})
+		)
+	),
 });
 export type SweepingCollection = v.InferOutput<typeof SweepingCollectionSchema>;

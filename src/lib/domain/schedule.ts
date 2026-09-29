@@ -1,4 +1,4 @@
-import { dayOfMonth, weekdayOf, type Weekday } from './civil-date';
+import { dayOfMonth, weekdayOf, type Weekday } from "./civil-date";
 
 /**
  * Recurrence patterns used by Alia for street sweeping in Florence.
@@ -18,7 +18,7 @@ export const WeekKind = {
 	Nth4: 4,
 	Nth5: 5,
 	OddDays: 6,
-	EvenDays: 7
+	EvenDays: 7,
 } as const;
 export type WeekKind = (typeof WeekKind)[keyof typeof WeekKind];
 
@@ -31,7 +31,7 @@ const KIND_MATCHES_DAY_OF_MONTH: ReadonlyArray<(dom: number) => boolean> = [
 	(dom) => dom >= 22 && dom <= 28,
 	(dom) => dom >= 29,
 	(dom) => (dom & 1) === 1,
-	(dom) => (dom & 1) === 0
+	(dom) => (dom & 1) === 0,
 ];
 
 /**
@@ -64,8 +64,15 @@ export function kindMatchesDay(kind: WeekKind, day: number): boolean {
 	return KIND_MATCHES_DAY_OF_MONTH[kind]!(dayOfMonth(day));
 }
 
-export function ruleMatchesDay(rules: RuleBuffer, rule: number, day: number): boolean {
-	return weekdayOf(day) === ruleWeekday(rules, rule) && kindMatchesDay(ruleKind(rules, rule), day);
+export function ruleMatchesDay(
+	rules: RuleBuffer,
+	rule: number,
+	day: number
+): boolean {
+	return (
+		weekdayOf(day) === ruleWeekday(rules, rule) &&
+		kindMatchesDay(ruleKind(rules, rule), day)
+	);
 }
 
 /** A "quinta settimana" can be ~3 months away; one year is a safe upper bound. */
@@ -75,11 +82,19 @@ const MAX_LOOKAHEAD_DAYS = 400;
  * First day ≥ `fromDay` on which `rule` applies, or -1 if none within a year.
  * Walks week by week on the right weekday: at most ~57 iterations, no allocation.
  */
-export function nextRuleDay(rules: RuleBuffer, rule: number, fromDay: number): number {
+export function nextRuleDay(
+	rules: RuleBuffer,
+	rule: number,
+	fromDay: number
+): number {
 	const weekday = ruleWeekday(rules, rule);
 	const kind = ruleKind(rules, rule);
 	const delta = (weekday - weekdayOf(fromDay) + 7) % 7;
-	for (let day = fromDay + delta; day - fromDay <= MAX_LOOKAHEAD_DAYS; day += 7) {
+	for (
+		let day = fromDay + delta;
+		day - fromDay <= MAX_LOOKAHEAD_DAYS;
+		day += 7
+	) {
 		if (kindMatchesDay(kind, day)) return day;
 	}
 	return -1;
@@ -99,7 +114,16 @@ export function ruleEffectiveEnd(rules: RuleBuffer, rule: number): number {
  * Next day on which `rule` is still relevant at (`today`, `minute`):
  * today if today's window has not ended yet, otherwise the next occurrence.
  */
-export function nextRelevantDay(rules: RuleBuffer, rule: number, today: number, minute: number): number {
-	if (ruleMatchesDay(rules, rule, today) && minute < ruleEffectiveEnd(rules, rule)) return today;
+export function nextRelevantDay(
+	rules: RuleBuffer,
+	rule: number,
+	today: number,
+	minute: number
+): number {
+	if (
+		ruleMatchesDay(rules, rule, today) &&
+		minute < ruleEffectiveEnd(rules, rule)
+	)
+		return today;
 	return nextRuleDay(rules, rule, today + 1);
 }

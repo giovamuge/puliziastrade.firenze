@@ -6,20 +6,26 @@
  */
 const FADE_PX = 28;
 
-export function scrollFade(scroller: HTMLElement, target: HTMLElement = scroller): () => void {
+export function scrollFade(
+	scroller: HTMLElement,
+	target: HTMLElement = scroller
+): () => void {
 	let frame = 0;
 	const update = () => {
 		frame = 0;
 		const { scrollTop, scrollHeight, clientHeight } = scroller;
 		const top = Math.min(FADE_PX, Math.max(0, scrollTop));
-		const bottom = Math.min(FADE_PX, Math.max(0, scrollHeight - clientHeight - scrollTop));
-		target.style.setProperty('--fade-top', `${top}px`);
-		target.style.setProperty('--fade-bottom', `${bottom}px`);
+		const bottom = Math.min(
+			FADE_PX,
+			Math.max(0, scrollHeight - clientHeight - scrollTop)
+		);
+		target.style.setProperty("--fade-top", `${top}px`);
+		target.style.setProperty("--fade-bottom", `${bottom}px`);
 	};
 	const schedule = () => {
 		frame ||= requestAnimationFrame(update);
 	};
-	scroller.addEventListener('scroll', schedule, { passive: true });
+	scroller.addEventListener("scroll", schedule, { passive: true });
 	const resize = new ResizeObserver(schedule);
 	resize.observe(scroller);
 	// Content changes (views switching) alter scrollHeight without resizing the scroller.
@@ -28,7 +34,7 @@ export function scrollFade(scroller: HTMLElement, target: HTMLElement = scroller
 	update();
 	return () => {
 		cancelAnimationFrame(frame);
-		scroller.removeEventListener('scroll', schedule);
+		scroller.removeEventListener("scroll", schedule);
 		resize.disconnect();
 		mutations.disconnect();
 	};

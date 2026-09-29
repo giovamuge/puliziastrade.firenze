@@ -1,4 +1,4 @@
-import type { CityDataset } from './city-dataset';
+import type { CityDataset } from "./city-dataset";
 
 const METERS_PER_DEG_LAT = 110_574;
 const CELL_METERS = 120;
@@ -28,7 +28,10 @@ export class SpatialIndex {
 
 	constructor(private readonly city: CityDataset) {
 		const { lon, lat, arcPointOffsets, arcCount } = city;
-		let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+		let minLon = Infinity,
+			minLat = Infinity,
+			maxLon = -Infinity,
+			maxLat = -Infinity;
 		for (let p = 0; p < lon.length; p++) {
 			if (lon[p]! < minLon) minLon = lon[p]!;
 			if (lon[p]! > maxLon) maxLon = lon[p]!;
@@ -37,18 +40,31 @@ export class SpatialIndex {
 		}
 		this.originLon = minLon;
 		this.originLat = minLat;
-		this.metersPerDegLon = METERS_PER_DEG_LAT * Math.cos((((minLat + maxLat) / 2) * Math.PI) / 180);
-		this.cols = Math.max(1, Math.ceil(((maxLon - minLon) * this.metersPerDegLon) / CELL_METERS) + 1);
-		this.rows = Math.max(1, Math.ceil(((maxLat - minLat) * METERS_PER_DEG_LAT) / CELL_METERS) + 1);
+		this.metersPerDegLon =
+			METERS_PER_DEG_LAT *
+			Math.cos((((minLat + maxLat) / 2) * Math.PI) / 180);
+		this.cols = Math.max(
+			1,
+			Math.ceil(
+				((maxLon - minLon) * this.metersPerDegLon) / CELL_METERS
+			) + 1
+		);
+		this.rows = Math.max(
+			1,
+			Math.ceil(((maxLat - minLat) * METERS_PER_DEG_LAT) / CELL_METERS) +
+				1
+		);
 
 		this.pointArc = new Int32Array(lon.length);
-		for (let a = 0; a < arcCount; a++) this.pointArc.fill(a, arcPointOffsets[a]!, arcPointOffsets[a + 1]!);
+		for (let a = 0; a < arcCount; a++)
+			this.pointArc.fill(a, arcPointOffsets[a]!, arcPointOffsets[a + 1]!);
 
 		// Two passes (count, fill) → CSR without intermediate arrays per cell.
 		const cellCount = this.cols * this.rows;
 		this.cellOffsets = new Int32Array(cellCount + 1);
 		this.forEachSegmentCell((cell) => this.cellOffsets[cell + 1]!++);
-		for (let c = 0; c < cellCount; c++) this.cellOffsets[c + 1]! += this.cellOffsets[c]!;
+		for (let c = 0; c < cellCount; c++)
+			this.cellOffsets[c + 1]! += this.cellOffsets[c]!;
 		this.cellSegments = new Int32Array(this.cellOffsets[cellCount]!);
 		const cursor = this.cellOffsets.slice(0, cellCount);
 		this.forEachSegmentCell((cell, segment) => {
@@ -61,21 +77,32 @@ export class SpatialIndex {
 	}
 
 	private col(lonValue: number): number {
-		return Math.floor(((lonValue - this.originLon) * this.metersPerDegLon) / CELL_METERS);
+		return Math.floor(
+			((lonValue - this.originLon) * this.metersPerDegLon) / CELL_METERS
+		);
 	}
 	private row(latValue: number): number {
-		return Math.floor(((latValue - this.originLat) * METERS_PER_DEG_LAT) / CELL_METERS);
+		return Math.floor(
+			((latValue - this.originLat) * METERS_PER_DEG_LAT) / CELL_METERS
+		);
 	}
 
-	private forEachSegmentCell(visit: (cell: number, segment: number) => void): void {
+	private forEachSegmentCell(
+		visit: (cell: number, segment: number) => void
+	): void {
 		const { lon, lat, arcPointOffsets, arcCount } = this.city;
 		for (let a = 0; a < arcCount; a++) {
-			for (let p = arcPointOffsets[a]!; p < arcPointOffsets[a + 1]! - 1; p++) {
+			for (
+				let p = arcPointOffsets[a]!;
+				p < arcPointOffsets[a + 1]! - 1;
+				p++
+			) {
 				const c0 = this.col(Math.min(lon[p]!, lon[p + 1]!));
 				const c1 = this.col(Math.max(lon[p]!, lon[p + 1]!));
 				const r0 = this.row(Math.min(lat[p]!, lat[p + 1]!));
 				const r1 = this.row(Math.max(lat[p]!, lat[p + 1]!));
-				for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) visit(r * this.cols + c, p);
+				for (let r = r0; r <= r1; r++)
+					for (let c = c0; c <= c1; c++) visit(r * this.cols + c, p);
 			}
 		}
 	}
@@ -84,7 +111,12 @@ export class SpatialIndex {
 	 * Finds up to `out.capacity` distinct streets within `radiusMeters` of the
 	 * point, nearest first. Results are written into `out`; returns the count.
 	 */
-	nearestStreets(lonValue: number, latValue: number, radiusMeters: number, out: NearestResult): number {
+	nearestStreets(
+		lonValue: number,
+		latValue: number,
+		radiusMeters: number,
+		out: NearestResult
+	): number {
 		const { lon, lat } = this.city;
 		const kx = this.metersPerDegLon;
 		const ky = METERS_PER_DEG_LAT;
@@ -93,10 +125,22 @@ export class SpatialIndex {
 		const r = this.row(latValue);
 		let touchedCount = 0;
 
-		for (let rr = Math.max(0, r - reach); rr <= Math.min(this.rows - 1, r + reach); rr++) {
-			for (let cc = Math.max(0, c - reach); cc <= Math.min(this.cols - 1, c + reach); cc++) {
+		for (
+			let rr = Math.max(0, r - reach);
+			rr <= Math.min(this.rows - 1, r + reach);
+			rr++
+		) {
+			for (
+				let cc = Math.max(0, c - reach);
+				cc <= Math.min(this.cols - 1, c + reach);
+				cc++
+			) {
 				const cell = rr * this.cols + cc;
-				for (let i = this.cellOffsets[cell]!; i < this.cellOffsets[cell + 1]!; i++) {
+				for (
+					let i = this.cellOffsets[cell]!;
+					i < this.cellOffsets[cell + 1]!;
+					i++
+				) {
 					const p = this.cellSegments[i]!;
 					// Point–segment distance in a local equirectangular frame (metres).
 					const ax = (lon[p]! - lonValue) * kx;
@@ -115,7 +159,8 @@ export class SpatialIndex {
 
 					const arc = this.pointArc[p]!;
 					const street = this.city.arcStreet[arc]!;
-					if (this.streetBest[street] === Infinity) this.touched[touchedCount++] = street;
+					if (this.streetBest[street] === Infinity)
+						this.touched[touchedCount++] = street;
 					if (dist < this.streetBest[street]!) {
 						this.streetBest[street] = dist;
 						this.streetBestArc[street] = arc;

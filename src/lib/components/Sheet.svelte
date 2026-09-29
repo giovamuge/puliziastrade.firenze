@@ -3,19 +3,22 @@
 
 	/** Registers the custom elements once, client side only. */
 	function register(): Promise<void> {
-		registration ??= import('pure-web-bottom-sheet').then(({ registerSheetElements }) => {
-			if (!customElements.get('bottom-sheet')) registerSheetElements();
-		});
+		registration ??= import("pure-web-bottom-sheet").then(
+			({ registerSheetElements }) => {
+				if (!customElements.get("bottom-sheet"))
+					registerSheetElements();
+			}
+		);
 		return registration;
 	}
 </script>
 
 <script lang="ts">
-	import { onMount, tick, type Snippet } from 'svelte';
-	import { fly } from 'svelte/transition';
-	import { wideScreen } from '$lib/client/media';
-	import { scrollFade } from '$lib/client/scroll-fade';
-	import { sheetSource } from '$lib/client/sheet-backdrop';
+	import { onMount, tick, type Snippet } from "svelte";
+	import { fly } from "svelte/transition";
+	import { wideScreen } from "$lib/client/media";
+	import { scrollFade } from "$lib/client/scroll-fade";
+	import { sheetSource } from "$lib/client/sheet-backdrop";
 
 	/**
 	 * Adaptive panel for the street details.
@@ -36,11 +39,11 @@
 		open,
 		onclose,
 		labelledby,
-		snaps = ['100%'],
+		snaps = ["100%"],
 		initial = 0,
-		variant = 'main',
+		variant = "main",
 		header,
-		children
+		children,
 	}: {
 		open: boolean;
 		onclose: () => void;
@@ -49,7 +52,7 @@
 		snaps?: string[];
 		/** Index in `snaps` of the initial position. */
 		initial?: number;
-		variant?: 'main' | 'sub';
+		variant?: "main" | "sub";
 		header: Snippet;
 		children: Snippet;
 	} = $props();
@@ -85,13 +88,15 @@
 	}
 
 	function onDialogKeydown(event: KeyboardEvent): void {
-		if (event.key !== 'Escape' || !dialog?.open) return;
+		if (event.key !== "Escape" || !dialog?.open) return;
 		event.stopPropagation();
 		dialog.close();
 	}
 
 	/** Scroll fraction (0–1 of the sheet max height) of the resting detent. */
-	const restFraction = $derived(Math.min(1, (Number.parseFloat(snaps[initial] ?? '100') || 100) / 100));
+	const restFraction = $derived(
+		Math.min(1, (Number.parseFloat(snaps[initial] ?? "100") || 100) / 100)
+	);
 
 	/**
 	 * Wires scroll fade, the page-sheet backdrop and a swipe-to-dismiss safety net on the sheet.
@@ -113,11 +118,20 @@
 			if (!dialog?.open || range <= 0) return backdrop.lift(0);
 			const raised = sheet.scrollTop / range;
 			const rest = restFraction;
-			backdrop.lift(Math.min(1, Math.max(0, rest >= 1 ? raised : (raised - rest) / (1 - rest))));
+			backdrop.lift(
+				Math.min(
+					1,
+					Math.max(
+						0,
+						rest >= 1 ? raised : (raised - rest) / (1 - rest)
+					)
+				)
+			);
 		};
 		void register().then(() => {
 			// The scrolling element lives in the component's (open) shadow root.
-			const content = sheet.shadowRoot?.querySelector<HTMLElement>('.sheet-content');
+			const content =
+				sheet.shadowRoot?.querySelector<HTMLElement>(".sheet-content");
 			if (content) disposeFade = scrollFade(content, sheet);
 		});
 		const settle = () => {
@@ -133,15 +147,15 @@
 			raised = false;
 			backdrop.open(dialog?.open ?? false);
 		};
-		sheet.addEventListener('scroll', onScroll, { passive: true });
-		dialog?.addEventListener('toggle', onToggle);
+		sheet.addEventListener("scroll", onScroll, { passive: true });
+		dialog?.addEventListener("toggle", onToggle);
 		return () => {
 			cancelAnimationFrame(frame);
 			backdrop.dispose();
 			disposeFade?.();
 			clearTimeout(timer);
-			sheet.removeEventListener('scroll', onScroll);
-			dialog?.removeEventListener('toggle', onToggle);
+			sheet.removeEventListener("scroll", onScroll);
+			dialog?.removeEventListener("toggle", onToggle);
 		};
 	}
 
@@ -151,11 +165,19 @@
 	$effect(() => {
 		if (!wide) return;
 		if (open) {
-			returnFocus ??= document.activeElement instanceof HTMLElement ? document.activeElement : null;
-			void tick().then(() => document.getElementById(labelledby)?.focus({ preventScroll: true }));
+			returnFocus ??=
+				document.activeElement instanceof HTMLElement
+					? document.activeElement
+					: null;
+			void tick().then(() =>
+				document
+					.getElementById(labelledby)
+					?.focus({ preventScroll: true })
+			);
 		} else if (returnFocus) {
 			// Sub panels hand focus back to where the user was (e.g. the action button).
-			if (variant === 'sub' && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
+			if (variant === "sub" && returnFocus.isConnected)
+				returnFocus.focus({ preventScroll: true });
 			returnFocus = null;
 		}
 	});
@@ -164,13 +186,20 @@
 
 	/** Esc closes the panel that holds focus (the topmost one, since sub panels take focus). */
 	function onWindowKeydown(event: KeyboardEvent): void {
-		if (event.key === 'Escape' && wide && open && panel?.contains(event.target as Node)) {
+		if (
+			event.key === "Escape" &&
+			wide &&
+			open &&
+			panel?.contains(event.target as Node)
+		) {
 			event.stopPropagation();
 			onclose();
 		}
 	}
 
-	const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const reducedMotion = () =>
+		typeof matchMedia !== "undefined" &&
+		matchMedia("(prefers-reduced-motion: reduce)").matches;
 </script>
 
 <svelte:window onkeydown={onWindowKeydown} />
@@ -180,12 +209,23 @@
 		<aside
 			data-sheet-panel
 			bind:this={panel}
-			class="glass fixed top-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex w-(--sidebar-w) flex-col overflow-hidden {variant === 'sub' ? 'z-40 shadow-2xl' : 'z-30'}"
+			class="fixed top-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex w-(--sidebar-w) flex-col overflow-hidden glass {variant ===
+			'sub'
+				? 'z-40 shadow-2xl'
+				: 'z-30'}"
 			aria-labelledby={labelledby}
-			transition:fly={{ x: variant === 'sub' ? 32 : -32, duration: reducedMotion() ? 0 : 200 }}
+			transition:fly={{
+				x: variant === "sub" ? 32 : -32,
+				duration: reducedMotion() ? 0 : 200,
+			}}
 		>
-			<div class="border-border shrink-0 border-b px-4 pt-3 pb-2">{@render header()}</div>
-			<div class="scroll-fade flex-1 overflow-y-auto overscroll-contain px-4 pt-3 pb-4" {@attach (node) => scrollFade(node)}>
+			<div class="shrink-0 border-b border-border px-4 pt-3 pb-2">
+				{@render header()}
+			</div>
+			<div
+				class="scroll-fade flex-1 overflow-y-auto overscroll-contain px-4 pt-3 pb-4"
+				{@attach (node) => scrollFade(node)}
+			>
 				{@render children()}
 			</div>
 		</aside>
@@ -198,15 +238,38 @@
 			to it (or to the <dialog>, where a tap counts as outside the sheet):
 			buttons never fired and the sheet closed. Opening focuses the heading instead.
 		-->
-		<dialog bind:this={dialog} aria-labelledby={labelledby} aria-modal="true" onclose={onDialogClose} onclick={onDialogClick} onkeydown={onDialogKeydown}>
-			<bottom-sheet data-sheet-panel {@attach sheetBehaviour} class={variant === 'sub' ? 'sheet-sub' : ''} swipe-to-dismiss nested-scroll expand-to-scroll>
+		<dialog
+			bind:this={dialog}
+			aria-labelledby={labelledby}
+			aria-modal="true"
+			onclose={onDialogClose}
+			onclick={onDialogClick}
+			onkeydown={onDialogKeydown}
+		>
+			<bottom-sheet
+				data-sheet-panel
+				{@attach sheetBehaviour}
+				class={variant === "sub" ? "sheet-sub" : ""}
+				swipe-to-dismiss
+				nested-scroll
+				expand-to-scroll
+			>
 				{#each snaps as snap, i (snap)}
-					<div slot="snap" style="--snap: {snap}" class={[i === initial && 'initial', i === 0 && snap === '100%' && 'top']}></div>
+					<div
+						slot="snap"
+						style="--snap: {snap}"
+						class={[
+							i === initial && "initial",
+							i === 0 && snap === "100%" && "top",
+						]}
+					></div>
 				{/each}
 				<div slot="header" class="px-4 pb-2">{@render header()}</div>
 				<!-- Horizontal padding lives here, not on ::part(content): on iOS the library sizes a
 				     pseudo-element from the content padding, which would make it scroll sideways. -->
-				<div class="px-4">{#if open}{@render children()}{/if}</div>
+				<div class="px-4">
+					{#if open}{@render children()}{/if}
+				</div>
 			</bottom-sheet>
 		</dialog>
 	</bottom-sheet-dialog-manager>

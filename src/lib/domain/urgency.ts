@@ -1,5 +1,12 @@
-import { timeBandOf } from './describe';
-import { RULE_STRIDE, nextRelevantDay, ruleEffectiveEnd, ruleFrom, ruleMatchesDay, type RuleBuffer } from './schedule';
+import { timeBandOf } from "./describe";
+import {
+	RULE_STRIDE,
+	nextRelevantDay,
+	ruleEffectiveEnd,
+	ruleFrom,
+	ruleMatchesDay,
+	type RuleBuffer,
+} from "./schedule";
 
 /**
  * Map state of a segment. Lower wins when a segment has several rules, so a
@@ -13,7 +20,7 @@ export const Urgency = {
 	Tomorrow: 3,
 	ThisWeek: 4,
 	Later: 5,
-	None: 6
+	None: 6,
 } as const;
 export type Urgency = (typeof Urgency)[keyof typeof Urgency];
 
@@ -51,7 +58,10 @@ export class UrgencyCalculator {
 	/** Fills `arcValue` with the `Urgency` of each arc at (`today`, `minute`). */
 	computeUrgency(today: number, minute: number): Uint8Array {
 		for (let r = 0; r < this.ruleUrgency.length; r++) {
-			if (ruleMatchesDay(this.rules, r, today) && minute >= ruleEffectiveEnd(this.rules, r)) {
+			if (
+				ruleMatchesDay(this.rules, r, today) &&
+				minute >= ruleEffectiveEnd(this.rules, r)
+			) {
 				this.ruleUrgency[r] = Urgency.DoneToday;
 				continue;
 			}
@@ -65,7 +75,9 @@ export class UrgencyCalculator {
 	/** Fills `arcValue` with the `TimeBand` swept on `day`, or `NO_BAND`. */
 	computeDayBands(day: number): Uint8Array {
 		for (let r = 0; r < this.ruleBand.length; r++) {
-			this.ruleBand[r] = ruleMatchesDay(this.rules, r, day) ? timeBandOf(ruleFrom(this.rules, r)) : NO_BAND;
+			this.ruleBand[r] = ruleMatchesDay(this.rules, r, day)
+				? timeBandOf(ruleFrom(this.rules, r))
+				: NO_BAND;
 		}
 		return this.reduceArcs(this.ruleBand, NO_BAND);
 	}
@@ -75,7 +87,11 @@ export class UrgencyCalculator {
 		const arcs = this.arcValue.length;
 		for (let a = 0; a < arcs; a++) {
 			let best = empty;
-			for (let j = this.arcRuleOffsets[a]!; j < this.arcRuleOffsets[a + 1]!; j++) {
+			for (
+				let j = this.arcRuleOffsets[a]!;
+				j < this.arcRuleOffsets[a + 1]!;
+				j++
+			) {
 				const v = perRule[this.arcRules[j]!]!;
 				if (v < best) best = v;
 			}

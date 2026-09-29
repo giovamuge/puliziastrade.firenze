@@ -20,7 +20,6 @@ Progetto non ufficiale sugli <a href="https://opendata.comune.fi.it/page_dataset
   <img alt="Lingue" src="https://img.shields.io/badge/lingue-it%20·%20en%20·%20de%20·%20es%20·%20fr-535f67">
 </p>
 
-
 ## Anteprima
 
 **Desktop:** cerca una via e vedi subito quando passa la pulizia, tratto per tratto.
@@ -48,11 +47,12 @@ npm run dev   # http://localhost:5173
 
 Non serve configurazione: dati e segnalazioni restano in memoria. Per le integrazioni, copia `.env.example` in `.env`.
 
-| Comando | |
-| --- | --- |
-| `npm run check` | type check |
-| `npm test` | unit test |
-| `npm run build` | build di produzione |
+| Comando          |                       |
+| ---------------- | --------------------- |
+| `npm run check`  | type check            |
+| `npm test`       | unit test             |
+| `npm run format` | formatta con Prettier |
+| `npm run build`  | build di produzione   |
 
 Test d'integrazione sui dati reali:
 
@@ -65,16 +65,16 @@ DATA_FILE=alia_spazzamenti.json npx vitest run pipeline
 
 Tutte facoltative.
 
-| Variabile | Uso |
-| --- | --- |
-| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis: cache dati e segnalazioni |
-| `CRON_SECRET` | protegge `/api/cron/refresh` |
-| `RATE_LIMIT_SALT` | chiave dell'hash anonimo per il rate limit |
-| `PUBLIC_SITE_URL` | dominio per canonical e sitemap |
-| `PUBLIC_OWNER_NAME`, `PUBLIC_OWNER_EMAIL` | titolare nell'informativa privacy |
-| `GITHUB_ISSUES_REPO`, `GITHUB_ISSUES_TOKEN`, `GITHUB_ISSUES_LABEL` | copia le segnalazioni come issue |
+| Variabile                                                          | Uso                                        |
+| ------------------------------------------------------------------ | ------------------------------------------ |
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN`                             | Upstash Redis: cache dati e segnalazioni   |
+| `CRON_SECRET`                                                      | protegge `/api/cron/refresh`               |
+| `RATE_LIMIT_SALT`                                                  | chiave dell'hash anonimo per il rate limit |
+| `PUBLIC_SITE_URL`                                                  | dominio per canonical e sitemap            |
+| `PUBLIC_OWNER_NAME`, `PUBLIC_OWNER_EMAIL`                          | titolare nell'informativa privacy          |
+| `GITHUB_ISSUES_REPO`, `GITHUB_ISSUES_TOKEN`, `GITHUB_ISSUES_LABEL` | copia le segnalazioni come issue           |
 
-**Deploy:** importa il repository su Vercel, collega Upstash (Redis, piano Free, Francoforte) da *Storage*, imposta le variabili.
+**Deploy:** importa il repository su Vercel, collega Upstash (Redis, piano Free, Francoforte) da _Storage_, imposta le variabili.
 
 ## Contribuire
 
@@ -82,6 +82,7 @@ Apri una [issue](https://github.com/giovamuge/puliziastrade.firenze/issues) per 
 
 Prima della pull request:
 
+- [ ] `npm run format` (Prettier: tab, doppi apici, 80 colonne)
 - [ ] `npm run check && npm test && npm run build` senza errori
 - [ ] testi in `src/lib/i18n/`, in tutte e 5 le lingue
 - [ ] logica in `src/lib/domain/`, con test `*.test.ts`

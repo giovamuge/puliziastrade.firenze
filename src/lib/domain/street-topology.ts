@@ -1,5 +1,5 @@
-import type { CityDataset } from './city-dataset';
-import { NearestResult, type SpatialIndex } from './spatial-index';
+import type { CityDataset } from "./city-dataset";
+import { NearestResult, type SpatialIndex } from "./spatial-index";
 
 /**
  * Street topology: turns the flat list of segments (`cod_arco`) that share a
@@ -69,14 +69,30 @@ export class StreetTopology {
 
 	private compute(street: number): StreetLayout {
 		const { city } = this;
-		const arcs = Array.from(city.streetArcs.subarray(city.streetArcOffsets[street]!, city.streetArcOffsets[street + 1]!));
+		const arcs = Array.from(
+			city.streetArcs.subarray(
+				city.streetArcOffsets[street]!,
+				city.streetArcOffsets[street + 1]!
+			)
+		);
 
 		const sectionOf = this.components(arcs, () => true);
 		const sectionArcs = groupBy(arcs, (a) => sectionOf.get(a)!);
-		const sections = [...sectionArcs.values()].map((list) => this.describe(list, street));
+		const sections = [...sectionArcs.values()].map((list) =>
+			this.describe(list, street)
+		);
 
-		const signature = (a: number) => Array.from(city.arcRules.subarray(city.arcRuleOffsets[a]!, city.arcRuleOffsets[a + 1]!)).join(',');
-		const groupOf = this.components(arcs, (a, b) => signature(a) === signature(b));
+		const signature = (a: number) =>
+			Array.from(
+				city.arcRules.subarray(
+					city.arcRuleOffsets[a]!,
+					city.arcRuleOffsets[a + 1]!
+				)
+			).join(",");
+		const groupOf = this.components(
+			arcs,
+			(a, b) => signature(a) === signature(b)
+		);
 		const sectionIndex = new Map<number, number>();
 		[...sectionArcs.keys()].forEach((root, i) => sectionIndex.set(root, i));
 
@@ -88,14 +104,19 @@ export class StreetTopology {
 			for (const a of list) arcGroup.set(a, index);
 			groups.push({
 				...this.describe(list, street),
-				rules: signature(first).split(',').filter(Boolean).map(Number),
-				section: sectionIndex.get(sectionOf.get(first)!)!
+				rules: signature(first).split(",").filter(Boolean).map(Number),
+				section: sectionIndex.get(sectionOf.get(first)!)!,
 			});
 		}
 		// Stable, readable order: by section, then west→east / south→north.
 		const order = groups
 			.map((g, i) => ({ g, i }))
-			.sort((x, y) => x.g.section - y.g.section || x.g.bbox[0] - y.g.bbox[0] || x.g.bbox[1] - y.g.bbox[1]);
+			.sort(
+				(x, y) =>
+					x.g.section - y.g.section ||
+					x.g.bbox[0] - y.g.bbox[0] ||
+					x.g.bbox[1] - y.g.bbox[1]
+			);
 		const remap = new Map(order.map(({ i }, k) => [i, k]));
 		for (const [arc, g] of arcGroup) arcGroup.set(arc, remap.get(g)!);
 
@@ -103,7 +124,10 @@ export class StreetTopology {
 	}
 
 	/** Union-find over `arcs`, joining touching arcs for which `compatible` holds. */
-	private components(arcs: number[], compatible: (a: number, b: number) => boolean): Map<number, number> {
+	private components(
+		arcs: number[],
+		compatible: (a: number, b: number) => boolean
+	): Map<number, number> {
 		const parent = new Map(arcs.map((a) => [a, a]));
 		const find = (a: number): number => {
 			let root = a;
@@ -115,7 +139,12 @@ export class StreetTopology {
 			for (let j = i + 1; j < arcs.length; j++) {
 				const a = arcs[i]!;
 				const b = arcs[j]!;
-				if (find(a) !== find(b) && compatible(a, b) && this.touches(a, b)) parent.set(find(a), find(b));
+				if (
+					find(a) !== find(b) &&
+					compatible(a, b) &&
+					this.touches(a, b)
+				)
+					parent.set(find(a), find(b));
 			}
 		}
 		return new Map(arcs.map((a) => [a, find(a)]));
@@ -128,19 +157,27 @@ export class StreetTopology {
 	private endpointNearArc(from: number, to: number): boolean {
 		const { arcPointOffsets: off } = this.city;
 		for (const p of [off[from]!, off[from + 1]! - 1]) {
-			for (let q = off[to]!; q < off[to + 1]!; q++) if (this.distance(p, q) <= JOIN_METERS) return true;
+			for (let q = off[to]!; q < off[to + 1]!; q++)
+				if (this.distance(p, q) <= JOIN_METERS) return true;
 		}
 		return false;
 	}
 
 	private distance(p: number, q: number): number {
 		const { lon, lat } = this.city;
-		return Math.hypot((lon[p]! - lon[q]!) * this.kx, (lat[p]! - lat[q]!) * METERS_PER_DEG_LAT);
+		return Math.hypot(
+			(lon[p]! - lon[q]!) * this.kx,
+			(lat[p]! - lat[q]!) * METERS_PER_DEG_LAT
+		);
 	}
 
 	private describe(arcs: number[], street: number): StreetPart {
 		const { lon, lat, arcPointOffsets: off } = this.city;
-		let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity, length = 0;
+		let west = Infinity,
+			south = Infinity,
+			east = -Infinity,
+			north = -Infinity,
+			length = 0;
 		const endpoints: number[] = [];
 		for (const a of arcs) {
 			for (let p = off[a]!; p < off[a + 1]!; p++) {
@@ -153,7 +190,12 @@ export class StreetTopology {
 			endpoints.push(off[a]!, off[a + 1]! - 1);
 		}
 		// Terminal nodes: endpoints not shared with another endpoint of the part.
-		const terminals = endpoints.filter((p) => endpoints.filter((q) => q !== p && this.distance(p, q) <= NODE_METERS).length === 0);
+		const terminals = endpoints.filter(
+			(p) =>
+				endpoints.filter(
+					(q) => q !== p && this.distance(p, q) <= NODE_METERS
+				).length === 0
+		);
 		const candidates = terminals.length >= 2 ? terminals : endpoints;
 		let best: [number, number] = [candidates[0]!, candidates[0]!];
 		let bestDistance = -1;
@@ -171,14 +213,29 @@ export class StreetTopology {
 			const name = this.crossStreetAt(p, street);
 			if (name && !between.includes(name)) between.push(name);
 		}
-		return { arcs, lengthMeters: Math.round(length), bbox: [west, south, east, north], between };
+		return {
+			arcs,
+			lengthMeters: Math.round(length),
+			bbox: [west, south, east, north],
+			between,
+		};
 	}
 
 	private crossStreetAt(point: number, street: number): string | null {
-		const size = this.spatial.nearestStreets(this.city.lon[point]!, this.city.lat[point]!, CROSS_METERS, this.nearest);
+		const size = this.spatial.nearestStreets(
+			this.city.lon[point]!,
+			this.city.lat[point]!,
+			CROSS_METERS,
+			this.nearest
+		);
 		for (let i = 0; i < size; i++) {
 			const other = this.nearest.streets[i]!;
-			if (other !== street && this.city.streets[other]!.name !== this.city.streets[street]!.name) return this.city.streets[other]!.name;
+			if (
+				other !== street &&
+				this.city.streets[other]!.name !==
+					this.city.streets[street]!.name
+			)
+				return this.city.streets[other]!.name;
 		}
 		return null;
 	}

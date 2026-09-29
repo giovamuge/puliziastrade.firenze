@@ -1,14 +1,19 @@
-import { CityDataset } from '$lib/domain/city-dataset';
-import { readRomeInstant } from '$lib/domain/rome-clock';
-import type { DatasetSnapshot } from '$lib/domain/snapshot';
-import { SpatialIndex } from '$lib/domain/spatial-index';
-import { StreetTopology } from '$lib/domain/street-topology';
-import { buildSnapshot } from '../opendata/transform';
-import { fetchUpstream } from '../opendata/upstream';
-import { StreetSearch } from '../search/street-search';
-import { getRedis } from '../redis';
-import { waitUntil } from '../wait-until';
-import { NullSnapshotStore, RedisSnapshotStore, headOf, type SnapshotStore } from './snapshot-store';
+import { CityDataset } from "$lib/domain/city-dataset";
+import { readRomeInstant } from "$lib/domain/rome-clock";
+import type { DatasetSnapshot } from "$lib/domain/snapshot";
+import { SpatialIndex } from "$lib/domain/spatial-index";
+import { StreetTopology } from "$lib/domain/street-topology";
+import { buildSnapshot } from "../opendata/transform";
+import { fetchUpstream } from "../opendata/upstream";
+import { StreetSearch } from "../search/street-search";
+import { getRedis } from "../redis";
+import { waitUntil } from "../wait-until";
+import {
+	NullSnapshotStore,
+	RedisSnapshotStore,
+	headOf,
+	type SnapshotStore,
+} from "./snapshot-store";
 
 /** Everything the API needs, derived once per dataset version. */
 export class CityServices {
@@ -55,7 +60,9 @@ export class DatasetService {
 			if (this.checkedDay < today) waitUntil(this.refresh(false));
 			return this.current;
 		}
-		return (this.inflight ??= this.coldStart(today).finally(() => (this.inflight = null)));
+		return (this.inflight ??= this.coldStart(today).finally(
+			() => (this.inflight = null)
+		));
 	}
 
 	/** Forces an upstream check (used by the cron endpoint). */
@@ -64,10 +71,16 @@ export class DatasetService {
 	}
 
 	private async coldStart(today: number): Promise<CityServices> {
-		const [stored, head] = await Promise.all([this.safeRead(), this.store.readHead().catch(() => null)]);
+		const [stored, head] = await Promise.all([
+			this.safeRead(),
+			this.store.readHead().catch(() => null),
+		]);
 		if (stored) {
 			this.current = new CityServices(stored);
-			this.checkedDay = head?.version === stored.version ? head.refreshedDay : stored.refreshedDay;
+			this.checkedDay =
+				head?.version === stored.version
+					? head.refreshedDay
+					: stored.refreshedDay;
 			if (this.checkedDay < today) waitUntil(this.refresh(false));
 			return this.current;
 		}
@@ -80,38 +93,72 @@ export class DatasetService {
 
 	private refresh(force: boolean): Promise<CityServices> {
 		// Back off after a failed/ongoing attempt so a flaky upstream isn't hammered.
-		if (!force && this.current && Date.now() - this.lastAttemptAt < RETRY_BACKOFF_MS) return Promise.resolve(this.current);
+		if (
+			!force &&
+			this.current &&
+			Date.now() - this.lastAttemptAt < RETRY_BACKOFF_MS
+		)
+			return Promise.resolve(this.current);
 		this.lastAttemptAt = Date.now();
-		return (this.refreshing ??= this.doRefresh(force).finally(() => (this.refreshing = null)));
+		return (this.refreshing ??= this.doRefresh(force).finally(
+			() => (this.refreshing = null)
+		));
 	}
 
 	private async doRefresh(force: boolean): Promise<CityServices> {
 		const today = romeToday();
 		// Another instance may have refreshed already: adopt its result.
 		const head = await this.store.readHead().catch(() => null);
-		if (head && head.refreshedDay >= today && !force) return this.adoptStored(head.version, today);
+		if (head && head.refreshedDay >= today && !force)
+			return this.adoptStored(head.version, today);
 
-		const locked = await this.store.tryLock(LOCK_TTL_SECONDS).catch(() => true);
+		const locked = await this.store
+			.tryLock(LOCK_TTL_SECONDS)
+			.catch(() => true);
 		if (!locked && this.current) return this.current;
 		try {
 			const previous = this.current?.snapshot;
-			const payload = await fetchUpstream(previous ? { etag: previous.source.fileEtag, lastModified: previous.source.fileLastModified } : undefined);
+			const payload = await fetchUpstream(
+				previous
+					? {
+							etag: previous.source.fileEtag,
+							lastModified: previous.source.fileLastModified,
+						}
+					: undefined
+			);
 			if (!payload && previous) {
 				// 304 Not Modified: same data, just mark it as checked today.
-				await this.store.touch({ ...headOf(previous), refreshedDay: today }).catch(logStoreError);
+				await this.store
+					.touch({ ...headOf(previous), refreshedDay: today })
+					.catch(logStoreError);
 				this.checkedDay = today;
 				return this.current!;
 			}
-			if (!payload) throw new Error('Upstream returned 304 without a cached snapshot');
-			const snapshot = buildSnapshot(payload.collection, payload.source, new Date(), today);
-			if (snapshot.issues.length > 0) console.warn(`[dataset] ${snapshot.issues.length} record anomali`, snapshot.issues.slice(0, 5));
+			if (!payload)
+				throw new Error(
+					"Upstream returned 304 without a cached snapshot"
+				);
+			const snapshot = buildSnapshot(
+				payload.collection,
+				payload.source,
+				new Date(),
+				today
+			);
+			if (snapshot.issues.length > 0)
+				console.warn(
+					`[dataset] ${snapshot.issues.length} record anomali`,
+					snapshot.issues.slice(0, 5)
+				);
 			await this.store.write(snapshot).catch(logStoreError);
 			this.current = new CityServices(snapshot);
 			this.checkedDay = today;
 			return this.current;
 		} catch (error) {
 			if (this.current) {
-				console.error('[dataset] refresh failed, serving stale data', error);
+				console.error(
+					"[dataset] refresh failed, serving stale data",
+					error
+				);
 				return this.current;
 			}
 			throw error;
@@ -120,12 +167,16 @@ export class DatasetService {
 		}
 	}
 
-	private async adoptStored(version: string, today: number): Promise<CityServices> {
+	private async adoptStored(
+		version: string,
+		today: number
+	): Promise<CityServices> {
 		if (this.current?.version !== version) {
 			const stored = await this.safeRead();
 			if (stored) this.current = new CityServices(stored);
 		}
-		if (!this.current) throw new Error('Snapshot head present but data missing');
+		if (!this.current)
+			throw new Error("Snapshot head present but data missing");
 		this.checkedDay = today;
 		return this.current;
 	}
@@ -145,7 +196,7 @@ function romeToday(): number {
 }
 
 function logStoreError(error: unknown): void {
-	console.error('[dataset] snapshot store error', error);
+	console.error("[dataset] snapshot store error", error);
 }
 
 let service: DatasetService | undefined;
@@ -153,7 +204,9 @@ let service: DatasetService | undefined;
 export function getDatasetService(): DatasetService {
 	if (!service) {
 		const redis = getRedis();
-		service = new DatasetService(redis ? new RedisSnapshotStore(redis) : new NullSnapshotStore());
+		service = new DatasetService(
+			redis ? new RedisSnapshotStore(redis) : new NullSnapshotStore()
+		);
 	}
 	return service;
 }

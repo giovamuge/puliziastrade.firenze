@@ -7,7 +7,7 @@ declare global {
 		}
 		interface Locals {
 			/** Language of the server-rendered markup (`<html lang>`), when not Italian. */
-			lang?: import('$lib/i18n').Locale;
+			lang?: import("$lib/i18n").Locale;
 		}
 	}
 }
