@@ -13,6 +13,12 @@
  * they are raised (0–1); the page registers itself with `sheetBackdrop` and
  * renders the result through two non-inherited custom properties, at most once
  * per frame; `data-sheet` switches the effect on only while it is visible.
+ * Stacked sheets, as on iOS: when a sheet is full screen and another opens over it,
+ * the one below recedes like the page (`data-stacked` on its `<bottom-sheet>`, see
+ * app.css): it shrinks around its top edge and dims, staying where it is. The newer
+ * sheet never rises above it (its max height leaves the edge below in view), so
+ * no position needs measuring. Over a sheet that is not full screen nothing changes.
+ *
  * No allocations on the scroll path: state lives in slot arrays reused across sheets.
  */
 export interface SheetSource {
@@ -28,13 +34,33 @@ const DIM_STEP = 0.25;
 
 const lifts: number[] = [];
 const opens: number[] = [];
+/** The `<bottom-sheet>` of each slot, and when it was opened (0 = closed): stack order. */
+const hosts: (HTMLElement | null)[] = [];
+const openedAt: number[] = [];
+let openCounter = 0;
+/** Raise level from which a sheet counts as full screen. */
+const FULL = 0.98;
 let target: HTMLElement | null = null;
 let frame = 0;
 let appliedLift = 0;
 let appliedDim = 0;
 
+/** A sheet is stacked while it is full screen and a sheet opened after it is open. */
+function restack(): void {
+	for (let i = 0; i < hosts.length; i++) {
+		const host = hosts[i];
+		if (!host) continue;
+		let covered = false;
+		if (openedAt[i]! > 0 && lifts[i]! >= FULL) {
+			for (let j = 0; j < hosts.length; j++) if (hosts[j] && openedAt[j]! > openedAt[i]!) covered = true;
+		}
+		if (covered !== host.hasAttribute('data-stacked')) host.toggleAttribute('data-stacked', covered);
+	}
+}
+
 function render(): void {
 	frame = 0;
+	restack();
 	if (!target) return;
 	let lift = 0;
 	let open = 0;
@@ -60,11 +86,13 @@ function schedule(): void {
 	frame ||= requestAnimationFrame(render);
 }
 
-export function sheetSource(): SheetSource {
+export function sheetSource(host: HTMLElement | null = null): SheetSource {
 	let slot = lifts.indexOf(FREE);
 	if (slot < 0) slot = lifts.push(0) - 1;
 	lifts[slot] = 0;
 	opens[slot] = 0;
+	hosts[slot] = host;
+	openedAt[slot] = 0;
 	return {
 		lift(level) {
 			if (lifts[slot] === level) return;
@@ -75,12 +103,16 @@ export function sheetSource(): SheetSource {
 			const value = open ? 1 : 0;
 			if (opens[slot] === value) return;
 			opens[slot] = value;
+			openedAt[slot] = open ? ++openCounter : 0;
 			if (!open) lifts[slot] = 0;
 			schedule();
 		},
 		dispose() {
+			hosts[slot]?.removeAttribute('data-stacked');
 			lifts[slot] = FREE;
 			opens[slot] = 0;
+			hosts[slot] = null;
+			openedAt[slot] = 0;
 			schedule();
 		}
 	};

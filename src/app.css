@@ -249,8 +249,9 @@ bottom-sheet {
 	max-width: 40rem;
 	margin-inline: auto;
 }
+/* Sheets opened over the street sheet stop 10 px lower, so its edge stays in view when stacked. */
 bottom-sheet.sheet-sub {
-	--sheet-max-height: calc(100dvh - 2.5rem);
+	--sheet-max-height: calc(100dvh - 4.5rem - 10px);
 }
 bottom-sheet::part(sheet) {
 	box-shadow: 0 -8px 32px rgb(0 0 0 / 0.18);
@@ -272,6 +273,20 @@ bottom-sheet::part(content) {
  */
 bottom-sheet > [slot='snap'].initial::before {
 	scroll-snap-stop: always;
+}
+/*
+ * Stacked sheets (see sheet-backdrop.ts): a full-screen sheet covered by a newer one
+ * recedes like the page, shrinking around its top edge and dimming.
+ */
+bottom-sheet {
+	transform-origin: 50% 0;
+	transition:
+		scale 0.3s ease-out,
+		filter 0.3s ease-out;
+}
+bottom-sheet[data-stacked] {
+	scale: 0.94;
+	filter: brightness(0.88);
 }
 /* iOS focuses the dialog on taps: never draw a full-screen focus ring for it. */
 bottom-sheet-dialog-manager dialog:focus-visible {

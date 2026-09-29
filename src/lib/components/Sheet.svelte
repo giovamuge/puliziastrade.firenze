@@ -106,7 +106,7 @@
 		let timer: ReturnType<typeof setTimeout> | undefined;
 		let disposeFade: (() => void) | undefined;
 		let frame = 0;
-		const backdrop = sheetSource();
+		const backdrop = sheetSource(sheet);
 		const measure = () => {
 			frame = 0;
 			const range = sheet.scrollHeight - sheet.clientHeight;
