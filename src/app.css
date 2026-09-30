@@ -366,6 +366,9 @@ bottom-sheet-dialog-manager dialog:focus-visible {
 }
 .sheet-backdrop {
 	top: calc(var(--bleed) - var(--under-status));
+	/* Fixed height, not tied to the stage: the map keeps its size (and centre) while typing. */
+	bottom: auto;
+	height: calc(100dvh + var(--bleed) + var(--under-status));
 	transform-origin: 50% 100%;
 	scale: calc(
 		(1 - 0.07 * var(--sheet-lift)) * (1 - 0.06 * var(--stack-depth))
@@ -416,9 +419,14 @@ bottom-sheet-dialog-manager dialog {
 	top: 0;
 	height: calc(100dvh + 2 * var(--bleed));
 }
-/* Typing: no track below, so the controls layer ends where the shrunken viewport does (see full-bleed.ts). */
+/*
+ * Typing: no track below, so the document ends where the shrunken viewport does (see
+ * full-bleed.ts). The page keeps its height and is clipped instead: resizing it would
+ * resize the map, which then drifts up by half the track.
+ */
 .stage[data-typing] {
 	height: calc(100dvh + var(--bleed));
+	overflow: clip;
 }
 
 /* Keep map controls and attribution clear of the bottom search bar and of the bleed. */

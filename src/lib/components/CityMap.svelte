@@ -417,6 +417,20 @@
 			: { ...base, bottom: Math.round(screenHeight() * 0.64) + edge };
 	}
 
+	/**
+	 * Adopt the container's current size before framing. MapLibre's own ResizeObserver is
+	 * throttled and a frame late: right after the keyboard closes, a fit computed on the
+	 * old canvas has almost no room left inside the padding and lands in the wrong place.
+	 */
+	function syncSize(): void {
+		const canvas = map!.getCanvas();
+		if (
+			canvas.clientWidth !== container.clientWidth ||
+			canvas.clientHeight !== container.clientHeight
+		)
+			map!.resize();
+	}
+
 	function refreshSelection(animate = true, fit = true): void {
 		if (!map || status !== "ready" || !layer || !features) return;
 		const selected = app.selected;
@@ -451,6 +465,7 @@
 		// Found by "my position" without a stretch: stay centred on the user (refreshPosition).
 		if (bbox && !(app.selectedByLocate && !group)) {
 			const [w, s, e, n] = bbox;
+			syncSize();
 			map.fitBounds(
 				[
 					[w, s],
@@ -483,13 +498,14 @@
 					]
 				: [],
 		});
-		if (p)
-			map.easeTo({
-				center: [p.lon, p.lat],
-				zoom: 17,
-				padding: padding(),
-				duration: animate && !reducedMotion() ? 800 : 0,
-			});
+		if (!p) return;
+		syncSize();
+		map.easeTo({
+			center: [p.lon, p.lat],
+			zoom: 17,
+			padding: padding(),
+			duration: animate && !reducedMotion() ? 800 : 0,
+		});
 	}
 
 	function onClick(event: MapLayerMouseEvent): void {

@@ -11,6 +11,10 @@
  * to its end: with the track, the end is 128 px below the controls layer, and the
  * search field would float that much above the keyboard.
  *
+ * Nothing else may move the resting position: focus moves (a sheet opening, closing and
+ * handing focus back) can scroll the root even with `overflow: hidden`, and the page would
+ * stay shifted, the map with it. Outside typing any scroll is put back.
+ *
  * `bleed()` gives the current amount in CSS px, for map padding.
  */
 let amount = 0;
@@ -39,15 +43,26 @@ export function fullBleed(stage: HTMLElement): () => void {
 		delete stage.dataset.typing;
 		requestAnimationFrame(settle);
 	};
+	let frame = 0;
+	const onScroll = () => {
+		if (stage.dataset.typing === undefined && window.scrollY !== amount)
+			frame ||= requestAnimationFrame(() => {
+				frame = 0;
+				settle();
+			});
+	};
 	settle();
 	window.addEventListener("resize", settle, { passive: true });
+	window.addEventListener("scroll", onScroll, { passive: true });
 	window.addEventListener("pageshow", settle);
 	document.addEventListener("focusin", onFocusIn);
 	document.addEventListener("focusout", onFocusOut);
 	return () => {
 		amount = 0;
+		cancelAnimationFrame(frame);
 		delete stage.dataset.typing;
 		window.removeEventListener("resize", settle);
+		window.removeEventListener("scroll", onScroll);
 		window.removeEventListener("pageshow", settle);
 		document.removeEventListener("focusin", onFocusIn);
 		document.removeEventListener("focusout", onFocusOut);

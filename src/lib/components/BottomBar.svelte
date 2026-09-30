@@ -12,15 +12,18 @@
 	const locating = $derived(app.locateStatus === "locating");
 
 	/**
-	 * Height of the on-screen keyboard, as the visual viewport reports it: the part of the
-	 * layout viewport it hides. The search field is focused without scrolling (SearchBox),
-	 * so the page stays put and this is the only movement: the bar rises by exactly that much.
+	 * How far the bar's resting bottom edge sits below the visible area (the keyboard top):
+	 * the bar rises by exactly that much. Measured on the bar itself, not derived from
+	 * `innerHeight`: Safari 26 changes that with its toolbar state (after the location
+	 * prompt, for one), and the bar then floated well above the keyboard.
 	 */
 	function keyboardLift(node: HTMLElement): () => void {
 		const vv = window.visualViewport;
 		if (!vv) return () => {};
 		let frame = 0;
+		let lifted = 0;
 		const apply = (hidden: number) => {
+			lifted = hidden;
 			node.style.setProperty("--keyboard", `${hidden}px`);
 			// The home-indicator safe area is under the keyboard now: keep only a small gap.
 			node.toggleAttribute("data-keyboard", hidden > 0);
@@ -28,17 +31,10 @@
 		const update = () => {
 			frame = 0;
 			// Only while one of the bar's fields has focus.
-			const typing = node.contains(document.activeElement);
-			apply(
-				typing
-					? Math.max(
-							0,
-							Math.round(
-								window.innerHeight - (vv.offsetTop + vv.height)
-							)
-						)
-					: 0
-			);
+			if (!node.contains(document.activeElement)) return apply(0);
+			// Client coordinates and the visual viewport both refer to the layout viewport.
+			const bottom = node.getBoundingClientRect().bottom + lifted;
+			apply(Math.max(0, Math.round(bottom - (vv.offsetTop + vv.height))));
 		};
 		const schedule = () => (frame ||= requestAnimationFrame(update));
 		// Focus out drops the bar back at once, without waiting for the visual viewport to report
