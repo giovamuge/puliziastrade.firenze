@@ -286,10 +286,6 @@ bottom-sheet {
 	max-width: 40rem;
 	margin-inline: auto;
 }
-/* Sheets opened over the street sheet stop 10 px lower, so its edge stays in view when stacked. */
-bottom-sheet.sheet-sub {
-	--sheet-max-height: calc(100dvh - 4.5rem - 10px);
-}
 bottom-sheet::part(sheet) {
 	box-shadow: 0 -8px 32px rgb(0 0 0 / 0.18);
 	/* border: 1px solid var(--c-border); */
@@ -311,21 +307,6 @@ bottom-sheet::part(content) {
 bottom-sheet > [slot="snap"].initial::before {
 	scroll-snap-stop: always;
 }
-/*
- * Stacked sheets (see sheet-backdrop.ts): a full-screen sheet covered by a newer one
- * recedes like the page, shrinking around its top edge and dimming.
- */
-bottom-sheet {
-	transform-origin: 50% 0;
-	transition:
-		scale 0.3s ease-out,
-		filter 0.3s ease-out;
-}
-/* One step further back per sheet above it (`--stack-depth`, see sheet-backdrop.ts). */
-bottom-sheet[data-stacked] {
-	scale: calc(1 - 0.06 * var(--stack-depth, 1));
-	filter: brightness(calc(1 - 0.12 * var(--stack-depth, 1)));
-}
 /* iOS focuses the dialog on taps: never draw a full-screen focus ring for it. */
 bottom-sheet-dialog-manager dialog:focus-visible {
 	outline: none;
@@ -346,12 +327,6 @@ bottom-sheet-dialog-manager dialog:focus-visible {
 	inherits: false;
 	initial-value: 0;
 }
-/* Stack depth below the sheets (0–n): each level sends the page one step further back. */
-@property --stack-depth {
-	syntax: "<number>";
-	inherits: false;
-	initial-value: 0;
-}
 /*
  * The page covers the screen and little more. At rest the viewport starts below
  * Safari's status bar (`--bleed` into the stage) and the status bar shows the stage
@@ -367,14 +342,11 @@ bottom-sheet-dialog-manager dialog:focus-visible {
 .sheet-backdrop {
 	top: calc(var(--bleed) - var(--under-status));
 	transform-origin: 50% 100%;
-	scale: calc(
-		(1 - 0.07 * var(--sheet-lift)) * (1 - 0.06 * var(--stack-depth))
-	);
+	scale: calc(1 - 0.07 * var(--sheet-lift));
 	border-radius: calc(var(--sheet-lift) * 1.5rem);
 	transition:
 		--sheet-lift 0.18s ease-out,
-		--sheet-dim 0.3s ease-out,
-		--stack-depth 0.3s ease-out;
+		--sheet-dim 0.3s ease-out;
 }
 /* While a sheet is open: dim the page (in-flow, so Safari shows it under its bars). */
 .sheet-backdrop[data-sheet] {

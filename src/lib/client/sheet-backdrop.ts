@@ -13,11 +13,6 @@
  * they are raised (0–1); the page registers itself with `sheetBackdrop` and
  * renders the result through two non-inherited custom properties, at most once
  * per frame; `data-sheet` switches the effect on only while it is visible.
- * Stacked sheets, as on iOS: when a sheet is full screen and another opens over it,
- * the one below recedes like the page (`data-stacked` on its `<bottom-sheet>`, see
- * app.css): it shrinks around its top edge and dims, staying where it is. The newer
- * sheet never rises above it (its max height leaves the edge below in view), so
- * no position needs measuring. Over a sheet that is not full screen nothing changes.
  *
  * No allocations on the scroll path: state lives in slot arrays reused across sheets.
  */
@@ -29,66 +24,26 @@ export interface SheetSource {
 }
 
 const FREE = -1;
-/** Dimming added by each open sheet (stacked sheets dim further: 1 − (1 − d)ⁿ). */
-const DIM_STEP = 0.25;
+/** Dimming of the page while a sheet is open. */
+const DIM = 0.25;
 
 const lifts: number[] = [];
 const opens: number[] = [];
-/** The `<bottom-sheet>` of each slot, and when it was opened (0 = closed): stack order. */
-const hosts: (HTMLElement | null)[] = [];
-const openedAt: number[] = [];
-let openCounter = 0;
-/** Raise level from which a sheet counts as full screen. */
-const FULL = 0.98;
 let target: HTMLElement | null = null;
 let frame = 0;
 let appliedLift = 0;
 let appliedDim = 0;
-let appliedPageDepth = 0;
-/** Last `--stack-depth` written to each sheet, so unchanged levels are not restyled. */
-const appliedDepths: number[] = [];
-
-/**
- * Depth of each sheet in the stack: how many newer sheets cover it while it is full
- * screen (0 otherwise). Each level recedes it one step more (`--stack-depth`), and the
- * page one step beyond the deepest sheet, so the more sheets are open the further back
- * everything below goes. Returns the deepest level.
- */
-function restack(): number {
-	let deepest = 0;
-	for (let i = 0; i < hosts.length; i++) {
-		const host = hosts[i];
-		if (!host) continue;
-		let depth = 0;
-		if (openedAt[i]! > 0 && lifts[i]! >= FULL) {
-			for (let j = 0; j < hosts.length; j++)
-				if (hosts[j] && openedAt[j]! > openedAt[i]!) depth++;
-		}
-		if (depth > deepest) deepest = depth;
-		if (depth !== appliedDepths[i]) {
-			appliedDepths[i] = depth;
-			host.style.setProperty("--stack-depth", String(depth));
-			host.toggleAttribute("data-stacked", depth > 0);
-		}
-	}
-	return deepest;
-}
 
 function render(): void {
 	frame = 0;
-	const depth = restack();
 	if (!target) return;
-	if (depth !== appliedPageDepth) {
-		appliedPageDepth = depth;
-		target.style.setProperty("--stack-depth", String(depth));
-	}
 	let lift = 0;
 	let open = 0;
 	for (let i = 0; i < lifts.length; i++) {
 		if (lifts[i]! > lift) lift = lifts[i]!;
 		if (opens[i] === 1) open++;
 	}
-	const dim = 1 - (1 - DIM_STEP) ** open;
+	const dim = open > 0 ? DIM : 0;
 	if (lift !== appliedLift) {
 		appliedLift = lift;
 		target.style.setProperty(
@@ -109,14 +64,11 @@ function schedule(): void {
 	frame ||= requestAnimationFrame(render);
 }
 
-export function sheetSource(host: HTMLElement | null = null): SheetSource {
+export function sheetSource(): SheetSource {
 	let slot = lifts.indexOf(FREE);
 	if (slot < 0) slot = lifts.push(0) - 1;
 	lifts[slot] = 0;
 	opens[slot] = 0;
-	hosts[slot] = host;
-	openedAt[slot] = 0;
-	appliedDepths[slot] = 0;
 	return {
 		lift(level) {
 			if (lifts[slot] === level) return;
@@ -127,17 +79,12 @@ export function sheetSource(host: HTMLElement | null = null): SheetSource {
 			const value = open ? 1 : 0;
 			if (opens[slot] === value) return;
 			opens[slot] = value;
-			openedAt[slot] = open ? ++openCounter : 0;
 			if (!open) lifts[slot] = 0;
 			schedule();
 		},
 		dispose() {
-			hosts[slot]?.removeAttribute("data-stacked");
-			hosts[slot]?.style.removeProperty("--stack-depth");
 			lifts[slot] = FREE;
 			opens[slot] = 0;
-			hosts[slot] = null;
-			openedAt[slot] = 0;
 			schedule();
 		},
 	};
@@ -146,7 +93,7 @@ export function sheetSource(host: HTMLElement | null = null): SheetSource {
 /** Attachment for the page element that recedes behind the sheets. */
 export function sheetBackdrop(node: HTMLElement): () => void {
 	target = node;
-	appliedLift = appliedDim = appliedPageDepth = 0;
+	appliedLift = appliedDim = 0;
 	schedule();
 	return () => {
 		if (target === node) target = null;

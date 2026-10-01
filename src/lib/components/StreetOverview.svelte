@@ -91,7 +91,7 @@
 		<button
 			type="button"
 			class="flex w-full items-center gap-2 rounded-xl bg-surface-2 px-3 py-2 text-left text-xs text-muted hover:text-text"
-			onclick={() => app.openSubSheet("verify")}
+			onclick={() => (app.view = "verify")}
 		>
 			<Icon name="chat" size={14} class="shrink-0" />
 			<span class="min-w-0 flex-1 truncate">

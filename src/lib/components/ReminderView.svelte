@@ -17,10 +17,9 @@
 	import { alarmWallTime } from "$lib/domain/reminder";
 	import { useStreetModel } from "$lib/client/street-model.svelte";
 	import Icon from "./Icon.svelte";
-	import Sheet from "./Sheet.svelte";
 
 	/**
-	 * Reminder sheet: choose where (the user's stretch or the whole street),
+	 * Reminder screen of the street sheet: choose where (the user's stretch or the whole street),
 	 * how (recurring events, the next sweep only, or a live feed that updates
 	 * itself) and when to be alerted, then pick the calendar app.
 	 */
@@ -233,232 +232,193 @@
 	}
 </script>
 
-<Sheet
-	open={app.subSheet === "reminder"}
-	onclose={() => app.closeSubSheet()}
-	labelledby="{uid}-title"
-	variant="sub"
-	snaps={["100%", "78%"]}
-	initial={1}
->
-	{#snippet header()}
-		<div class="flex items-center gap-3 py-1">
-			<span
-				class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-on-primary"
-				><Icon name="bell" /></span
-			>
-			<div class="min-w-0 flex-1">
-				<h2
-					id="{uid}-title"
-					class="text-xl leading-tight font-semibold outline-none"
-					tabindex="-1"
-				>
-					{m.title}
-				</h2>
-				<p class="truncate text-sm text-muted">{street.name}</p>
-			</div>
+<div class="space-y-5 pt-1">
+	<p class="text-sm text-muted">{m.subtitle}</p>
+
+	{#if group >= 0 && street.groups.length > 1}
+		<div
+			class="grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1"
+			role="radiogroup"
+			aria-label={prefs.m.street.schedulesTitle}
+		>
 			<button
 				type="button"
-				class="btn-ghost size-10 min-h-10 shrink-0 px-0"
-				onclick={() => app.closeSubSheet()}
-				aria-label={prefs.m.common.close}
+				role="radio"
+				aria-checked={onlyGroup}
+				class="rounded-lg px-2 py-2 text-xs font-semibold {onlyGroup
+					? 'bg-surface shadow-sm'
+					: 'text-muted'}"
+				onclick={() => (onlyGroup = true)}
 			>
-				<Icon name="close" />
+				{m.scopeSegment}<span class="block font-normal text-muted"
+					>{groupLabel(group)}</span
+				>
+			</button>
+			<button
+				type="button"
+				role="radio"
+				aria-checked={!onlyGroup}
+				class="rounded-lg px-2 py-2 text-xs font-semibold {!onlyGroup
+					? 'bg-surface shadow-sm'
+					: 'text-muted'}"
+				onclick={() => (onlyGroup = false)}
+			>
+				{m.scopeStreet}
 			</button>
 		</div>
-	{/snippet}
+	{/if}
 
-	<div class="space-y-5 pt-1">
-		<p class="text-sm text-muted">{m.subtitle}</p>
-
-		{#if group >= 0 && street.groups.length > 1}
-			<div
-				class="grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1"
-				role="radiogroup"
-				aria-label={prefs.m.street.schedulesTitle}
-			>
-				<button
-					type="button"
-					role="radio"
-					aria-checked={onlyGroup}
-					class="rounded-lg px-2 py-2 text-xs font-semibold {onlyGroup
-						? 'bg-surface shadow-sm'
-						: 'text-muted'}"
-					onclick={() => (onlyGroup = true)}
+	<fieldset>
+		<legend class="mb-2 text-sm font-semibold">{m.modeTitle}</legend>
+		<div
+			class="divide-y divide-border overflow-hidden rounded-xl bg-surface-2"
+		>
+			{#each MODES as option (option.value)}
+				<label
+					class="flex cursor-pointer items-start gap-3 p-3 -outline-offset-2 has-checked:bg-primary/10 has-focus-visible:outline-2 has-focus-visible:outline-accent"
 				>
-					{m.scopeSegment}<span class="block font-normal text-muted"
-						>{groupLabel(group)}</span
+					<input
+						type="radio"
+						class="mt-0.5 size-5 shrink-0 accent-primary"
+						name="{uid}-mode"
+						value={option.value}
+						bind:group={mode}
+						aria-describedby="{uid}-mode-{option.value}"
+					/>
+					<span class="text-sm"
+						><span class="block font-semibold"
+							>{option.label()}</span
+						><span
+							id="{uid}-mode-{option.value}"
+							class="block text-xs text-muted"
+							>{option.hint()}</span
+						></span
 					>
-				</button>
-				<button
-					type="button"
-					role="radio"
-					aria-checked={!onlyGroup}
-					class="rounded-lg px-2 py-2 text-xs font-semibold {!onlyGroup
-						? 'bg-surface shadow-sm'
-						: 'text-muted'}"
-					onclick={() => (onlyGroup = false)}
+				</label>
+			{/each}
+		</div>
+	</fieldset>
+
+	<fieldset>
+		<legend class="mb-2 text-sm font-semibold">{m.when}</legend>
+		<div class="flex flex-wrap gap-1.5">
+			{#each OPTIONS as option (option.value)}
+				<label
+					class="cursor-pointer rounded-full border border-border px-3 py-2 text-sm hover:bg-surface-2 has-checked:border-primary has-checked:bg-primary has-checked:font-semibold has-checked:text-on-primary has-focus-visible:outline-2 has-focus-visible:outline-accent"
 				>
-					{m.scopeStreet}
-				</button>
-			</div>
-		{/if}
+					<input
+						type="radio"
+						class="sr-only"
+						name="{uid}-alarm"
+						value={option.value}
+						bind:group={alarm}
+					/>
+					{option.label()}{#if option.hint}<span class="sr-only"
+							>: {option.hint()}</span
+						>{/if}
+				</label>
+			{/each}
+		</div>
+		{#if alarm === "auto"}<p class="mt-2 text-xs text-muted">
+				{m.autoHint}
+			</p>{/if}
+	</fieldset>
 
-		<fieldset>
-			<legend class="mb-2 text-sm font-semibold">{m.modeTitle}</legend>
-			<div
-				class="divide-y divide-border overflow-hidden rounded-xl bg-surface-2"
-			>
-				{#each MODES as option (option.value)}
-					<label
-						class="flex cursor-pointer items-start gap-3 p-3 -outline-offset-2 has-checked:bg-primary/10 has-focus-visible:outline-2 has-focus-visible:outline-accent"
-					>
-						<input
-							type="radio"
-							class="mt-0.5 size-5 shrink-0 accent-primary"
-							name="{uid}-mode"
-							value={option.value}
-							bind:group={mode}
-							aria-describedby="{uid}-mode-{option.value}"
-						/>
-						<span class="text-sm"
-							><span class="block font-semibold"
-								>{option.label()}</span
-							><span
-								id="{uid}-mode-{option.value}"
-								class="block text-xs text-muted"
-								>{option.hint()}</span
-							></span
-						>
-					</label>
-				{/each}
-			</div>
-		</fieldset>
-
-		<fieldset>
-			<legend class="mb-2 text-sm font-semibold">{m.when}</legend>
-			<div class="flex flex-wrap gap-1.5">
-				{#each OPTIONS as option (option.value)}
-					<label
-						class="cursor-pointer rounded-full border border-border px-3 py-2 text-sm hover:bg-surface-2 has-checked:border-primary has-checked:bg-primary has-checked:font-semibold has-checked:text-on-primary has-focus-visible:outline-2 has-focus-visible:outline-accent"
-					>
-						<input
-							type="radio"
-							class="sr-only"
-							name="{uid}-alarm"
-							value={option.value}
-							bind:group={alarm}
-						/>
-						{option.label()}{#if option.hint}<span class="sr-only"
-								>: {option.hint()}</span
-							>{/if}
-					</label>
-				{/each}
-			</div>
-			{#if alarm === "auto"}<p class="mt-2 text-xs text-muted">
-					{m.autoHint}
-				</p>{/if}
-		</fieldset>
-
-		{#if mode !== "feed" || nextAlert}
-			<div
-				class="space-y-1.5 rounded-xl bg-surface-2 px-3 py-2.5 text-sm"
-				aria-live="polite"
-			>
-				{#if mode === "next"}
+	{#if mode !== "feed" || nextAlert}
+		<div
+			class="space-y-1.5 rounded-xl bg-surface-2 px-3 py-2.5 text-sm"
+			aria-live="polite"
+		>
+			{#if mode === "next"}
+				<p class="flex items-center gap-2">
+					<Icon
+						name="calendar"
+						size={16}
+						class="shrink-0 text-primary-text"
+					/>{event ? m.nextEvent(event.when) : m.noUpcoming}
+				</p>
+			{:else if mode === "repeat"}
+				{#each rules as rule, i (i)}
 					<p class="flex items-center gap-2">
 						<Icon
 							name="calendar"
 							size={16}
 							class="shrink-0 text-primary-text"
-						/>{event ? m.nextEvent(event.when) : m.noUpcoming}
+						/>{m.repeats(prefs.f.rule(rule))}
 					</p>
-				{:else if mode === "repeat"}
-					{#each rules as rule, i (i)}
-						<p class="flex items-center gap-2">
-							<Icon
-								name="calendar"
-								size={16}
-								class="shrink-0 text-primary-text"
-							/>{m.repeats(prefs.f.rule(rule))}
-						</p>
-					{:else}
-						<p>{m.noUpcoming}</p>
-					{/each}
-				{/if}
-				{#if nextAlert}
-					<p class="flex items-center gap-2">
-						<Icon
-							name="bell"
-							size={16}
-							class="shrink-0 text-primary-text"
-						/>{m.nextAlert(nextAlert)}
-					</p>
-				{/if}
-			</div>
-		{/if}
-
-		{#if ready}
-			<section aria-labelledby="{uid}-apps">
-				<h3
-					id="{uid}-apps"
-					class="mb-2 font-sans text-sm font-semibold"
-				>
-					{m.add}
-				</h3>
-				<div class="grid grid-cols-2 gap-2">
-					<a class="btn-primary px-3" href={appleUrl}
-						><Icon name="calendar" />{m.apple}</a
-					>
-					{#if googleUrl}
-						<a
-							class="btn-primary px-3"
-							href={googleUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							><Icon name="calendar" />{m.google}<span
-								class="sr-only">{prefs.m.common.newTab}</span
-							></a
-						>
-					{/if}
-					{#if outlookUrl}
-						<a
-							class="btn-primary px-3"
-							href={outlookUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							><Icon name="calendar" />{m.outlook}<span
-								class="sr-only">{prefs.m.common.newTab}</span
-							></a
-						>
-					{/if}
-					<a class="btn-primary px-3" href={path} download
-						><Icon name="download" />{m.download}</a
-					>
-				</div>
-				{#if mode === "feed"}
-					<button
-						type="button"
-						class="mt-2 btn-ghost w-full"
-						onclick={copy}
-					>
-						<Icon name={copied ? "check" : "copy"} />{copied
-							? prefs.m.common.copied
-							: prefs.m.common.copyLink}
-					</button>
 				{:else}
-					{#each repeatNotes as note (note)}<p
-							class="mt-2 text-xs text-muted"
-						>
-							{note}
-						</p>{/each}
-					{#if alarm !== "none" && (googleUrl || outlookUrl)}<p
-							class="mt-2 text-xs text-muted"
-						>
-							{m.defaultAlarm}
-						</p>{/if}
+					<p>{m.noUpcoming}</p>
+				{/each}
+			{/if}
+			{#if nextAlert}
+				<p class="flex items-center gap-2">
+					<Icon
+						name="bell"
+						size={16}
+						class="shrink-0 text-primary-text"
+					/>{m.nextAlert(nextAlert)}
+				</p>
+			{/if}
+		</div>
+	{/if}
+
+	{#if ready}
+		<section aria-labelledby="{uid}-apps">
+			<h3 id="{uid}-apps" class="mb-2 font-sans text-sm font-semibold">
+				{m.add}
+			</h3>
+			<div class="grid grid-cols-2 gap-2">
+				<a class="btn-primary px-3" href={appleUrl}
+					><Icon name="calendar" />{m.apple}</a
+				>
+				{#if googleUrl}
+					<a
+						class="btn-primary px-3"
+						href={googleUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						><Icon name="calendar" />{m.google}<span class="sr-only"
+							>{prefs.m.common.newTab}</span
+						></a
+					>
 				{/if}
-			</section>
-		{/if}
-	</div>
-</Sheet>
+				{#if outlookUrl}
+					<a
+						class="btn-primary px-3"
+						href={outlookUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						><Icon name="calendar" />{m.outlook}<span
+							class="sr-only">{prefs.m.common.newTab}</span
+						></a
+					>
+				{/if}
+				<a class="btn-primary px-3" href={path} download
+					><Icon name="download" />{m.download}</a
+				>
+			</div>
+			{#if mode === "feed"}
+				<button
+					type="button"
+					class="mt-2 btn-ghost w-full"
+					onclick={copy}
+				>
+					<Icon name={copied ? "check" : "copy"} />{copied
+						? prefs.m.common.copied
+						: prefs.m.common.copyLink}
+				</button>
+			{:else}
+				{#each repeatNotes as note (note)}<p
+						class="mt-2 text-xs text-muted"
+					>
+						{note}
+					</p>{/each}
+				{#if alarm !== "none" && (googleUrl || outlookUrl)}<p
+						class="mt-2 text-xs text-muted"
+					>
+						{m.defaultAlarm}
+					</p>{/if}
+			{/if}
+		</section>
+	{/if}
+</div>

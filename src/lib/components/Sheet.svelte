@@ -31,7 +31,6 @@
 	 *   sheet-backdrop.ts (page inert and dimmed, full-screen tap catcher, Esc):
 	 *   with a modal dialog Safari 26 stops drawing the page under its status bar.
 	 * - Tablets and desktop: non-modal sidebar on the left, the map stays usable.
-	 *   "sub" panels (reminder, report) slide over the main one, like a navigation push.
 	 *
 	 * `open` is controlled by the parent; `onclose` fires whenever the user dismisses it.
 	 */
@@ -41,7 +40,6 @@
 		labelledby,
 		snaps = ["100%"],
 		initial = 0,
-		variant = "main",
 		header,
 		children,
 	}: {
@@ -52,7 +50,6 @@
 		snaps?: string[];
 		/** Index in `snaps` of the initial position. */
 		initial?: number;
-		variant?: "main" | "sub";
 		header: Snippet;
 		children: Snippet;
 	} = $props();
@@ -111,7 +108,7 @@
 		let timer: ReturnType<typeof setTimeout> | undefined;
 		let disposeFade: (() => void) | undefined;
 		let frame = 0;
-		const backdrop = sheetSource(sheet);
+		const backdrop = sheetSource();
 		const measure = () => {
 			frame = 0;
 			const range = sheet.scrollHeight - sheet.clientHeight;
@@ -159,32 +156,32 @@
 		};
 	}
 
+	/**
+	 * Raises the bottom sheet to full height (no-op in the sidebar). The `<bottom-sheet>`
+	 * is the snap scroller, so scrolling it to the end lands on the top detent; its own
+	 * `snapToPoint` uses scrollIntoView, which would also scroll the page.
+	 */
+	export function expand(): void {
+		const sheet = dialog?.querySelector("bottom-sheet");
+		if (!sheet || wide) return;
+		sheet.scrollTo({
+			top: sheet.scrollHeight,
+			behavior: reducedMotion() ? "instant" : "smooth",
+		});
+	}
+
 	// ---- Sidebar (tablets, desktop) ---------------------------------------------
 
-	let returnFocus: HTMLElement | null = null;
 	$effect(() => {
-		if (!wide) return;
-		if (open) {
-			returnFocus ??=
-				document.activeElement instanceof HTMLElement
-					? document.activeElement
-					: null;
-			void tick().then(() =>
-				document
-					.getElementById(labelledby)
-					?.focus({ preventScroll: true })
-			);
-		} else if (returnFocus) {
-			// Sub panels hand focus back to where the user was (e.g. the action button).
-			if (variant === "sub" && returnFocus.isConnected)
-				returnFocus.focus({ preventScroll: true });
-			returnFocus = null;
-		}
+		if (!wide || !open) return;
+		void tick().then(() =>
+			document.getElementById(labelledby)?.focus({ preventScroll: true })
+		);
 	});
 
 	let panel: HTMLElement | undefined = $state();
 
-	/** Esc closes the panel that holds focus (the topmost one, since sub panels take focus). */
+	/** Esc closes the panel while it holds focus. */
 	function onWindowKeydown(event: KeyboardEvent): void {
 		if (
 			event.key === "Escape" &&
@@ -209,13 +206,10 @@
 		<aside
 			data-sheet-panel
 			bind:this={panel}
-			class="fixed top-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex w-(--sidebar-w) flex-col overflow-hidden glass {variant ===
-			'sub'
-				? 'z-40 shadow-2xl'
-				: 'z-30'}"
+			class="fixed top-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 z-30 flex w-(--sidebar-w) flex-col overflow-hidden glass"
 			aria-labelledby={labelledby}
 			transition:fly={{
-				x: variant === "sub" ? 32 : -32,
+				x: -32,
 				duration: reducedMotion() ? 0 : 200,
 			}}
 		>
@@ -249,7 +243,6 @@
 			<bottom-sheet
 				data-sheet-panel
 				{@attach sheetBehaviour}
-				class={variant === "sub" ? "sheet-sub" : ""}
 				swipe-to-dismiss
 				nested-scroll
 				expand-to-scroll

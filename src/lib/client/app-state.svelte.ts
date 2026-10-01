@@ -14,9 +14,13 @@ export type MapMode = "urgency" | "day" | "reviews";
 export type LocateStatus = "idle" | "locating" | "done" | "error";
 /** Screens inside the street sheet. */
 export type StreetView =
-	"overview" | "schedule" | "upcoming" | "nearby" | "technical";
-/** Sheets stacked on top of the street sheet. */
-export type SubSheet = "reminder" | "verify";
+	| "overview"
+	| "schedule"
+	| "upcoming"
+	| "nearby"
+	| "technical"
+	| "reminder"
+	| "verify";
 export type LocateError = keyof Pick<
 	Messages["locate"],
 	| "unsupported"
@@ -39,8 +43,8 @@ const FLORENCE_BBOX = { west: 11.14, south: 43.72, east: 11.34, north: 43.84 };
 /**
  * Application state (single source of truth). Components read reactive fields
  * and call intent methods; network access goes through the typed `api`.
- * The street sheet has its own screens (`view`); reminder and verification
- * open as separate sheets stacked on top (`subSheet`).
+ * The street sheet navigates between its own screens (`view`), reminder and
+ * verification included.
  */
 export class AppState {
 	readonly clock = new RomeClock();
@@ -65,7 +69,6 @@ export class AppState {
 	view = $state<StreetView>("overview");
 	/** The street was opened by tapping a basemap road that is not among its mapped segments. */
 	unmappedTap = $state(false);
-	subSheet = $state<SubSheet | null>(null);
 	/** Polite screen-reader announcements. */
 	announcement = $state("");
 
@@ -106,7 +109,6 @@ export class AppState {
 		this.streetStatus = "loading";
 		this.streetError = null;
 		this.view = "overview";
-		this.subSheet = null;
 		try {
 			const detail = await api.street(slug, controller.signal);
 			if (controller.signal.aborted) return;
@@ -136,16 +138,7 @@ export class AppState {
 		this.selectedSegment = null;
 		this.streetStatus = "idle";
 		this.view = "overview";
-		this.subSheet = null;
 		this.syncUrl();
-	}
-
-	openSubSheet(sheet: SubSheet): void {
-		this.subSheet = sheet;
-	}
-
-	closeSubSheet(): void {
-		this.subSheet = null;
 	}
 
 	/** One tap: device position → nearest streets → select the closest one. */
